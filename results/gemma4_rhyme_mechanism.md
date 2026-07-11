@@ -1,5 +1,14 @@
 # How Gemma 4 E2B chooses a rhyming word
 
+> **Post-publication note (phase 2).** After this report was written we found
+> that the pinned Transformers revision ignores the attention mask on Gemma
+> 4's sdpa path, mildly contaminating left-padded batch rows. Every experiment
+> was re-run with eager attention: all headline numbers replicate within noise
+> (for example clean rhyme mass 78.6% vs 78.8%; L24H3 ablation to 13.4% vs
+> 13.7%; value transfer 108.8% vs 108.9%). Details and the corrected table are
+> in `gemma4_rhyme_representation.md`, which also answers this report's open
+> questions on scheme routing and representation content.
+
 ## Executive conclusion
 
 The evidence supports a compact, causal account of rhyme completion in Gemma 4

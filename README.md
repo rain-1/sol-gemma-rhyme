@@ -3,15 +3,26 @@
 First-milestone experiments for asking how `EleutherAI/pythia-410m-deduped`
 completes the last word of a rhyming couplet.
 
-The project now also includes a causal Gemma 4 E2B analysis. The readable result
-is [`results/gemma4_rhyme_mechanism.md`](results/gemma4_rhyme_mechanism.md). Run
-the full scan with:
+The project now also includes a causal Gemma 4 E2B analysis in two parts:
+
+- Phase 1, circuit identification:
+  [`results/gemma4_rhyme_mechanism.md`](results/gemma4_rhyme_mechanism.md)
+- Phase 2, what the circuit computes (family probes, steering, scheme
+  routing, head readout, planning):
+  [`results/gemma4_rhyme_representation.md`](results/gemma4_rhyme_representation.md)
+
+Run the phase-1 scan with:
 
 ```bash
-.venv/bin/python scripts/run_gemma4_interpretability.py
-.venv/bin/python scripts/validate_gemma4_circuit.py
+PYTHONPATH=scripts .venv/bin/python scripts/run_gemma4_interpretability.py
+PYTHONPATH=scripts .venv/bin/python scripts/validate_gemma4_circuit.py
 .venv/bin/python scripts/plot_gemma4_results.py
 ```
+
+Phase-2 scripts are listed in the phase-2 report's reproduction section. All
+Gemma 4 analyses load the model with eager attention: the pinned Transformers
+revision drops the attention mask on the sdpa path (see
+`src/rhyme_interp/model.py`).
 
 The benchmark contains 25 hand-written couplets under eight prompt wrappers
 (200 examples). The final word is omitted. Exact rhyme is scored from CMUdict
