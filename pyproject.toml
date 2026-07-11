@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sol-pythia-interp"
+version = "0.1.0"
+description = "Controlled rhyme interpretability experiments for Pythia-410M"
+requires-python = ">=3.10"
+dependencies = [
+  "cmudict>=1.1,<2",
+  "numpy>=1.26",
+  "pandas>=2",
+  "torch>=2.2",
+  "transformers>=4.45",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+quant = ["bitsandbytes>=0.45", "accelerate>=1"]
+gemma4 = ["transformers @ git+https://github.com/huggingface/transformers.git@63f32a8782cb70da3365acab16f2b67947737985"]
+
+[project.scripts]
+rhyme-interp = "rhyme_interp.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
