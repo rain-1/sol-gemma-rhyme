@@ -257,6 +257,57 @@ def build_scheme_dataset(scheme: str, demo_stanzas: int = 2) -> list[SchemeExamp
     return examples
 
 
+@dataclass(frozen=True)
+class OpenCueExample:
+    id: str
+    demo_scheme: str
+    prompt: str
+    # Words ending the three open lines, named by distance from the
+    # incomplete line: distance 1 is adjacent, distance 3 is the stanza start.
+    cue_distance_1: str
+    cue_distance_2: str
+    cue_distance_3: str
+
+
+def build_open_cue_dataset(demo_scheme: str, demo_stanzas: int = 2) -> list[OpenCueExample]:
+    """Three open (unrhymed) cue lines; only the demo scheme says which to close.
+
+    The target stanza is identical across demo schemes: first lines of three
+    family-distinct couplets, then a fourth couplet's incomplete line. An
+    AABB demonstration predicts rhyming the adjacent cue, ABAB the cue two
+    lines back, ABBA the cue three lines back.
+    """
+    aabb = build_scheme_dataset(demo_scheme, demo_stanzas=demo_stanzas)
+    demo_prefix = aabb[0].prompt.split("\n\n")[0] + "\n\n" if demo_stanzas else ""
+    examples = []
+    for i in range(len(COUPLETS)):
+        chosen: list[tuple] = []
+        offset = 0
+        while len(chosen) < 4 and offset < len(COUPLETS):
+            candidate = COUPLETS[(i + offset) % len(COUPLETS)]
+            offset += 1
+            if any(
+                rhymes(candidate[0], other[0]) or rhymes(candidate[0], other[1])
+                or rhymes(candidate[1], other[0]) or rhymes(candidate[1], other[1])
+                for other in chosen
+            ):
+                continue
+            chosen.append(candidate)
+        far, middle, near, neutral = chosen
+        stanza = [far[2], middle[2], near[2], neutral[3]]
+        examples.append(
+            OpenCueExample(
+                id=f"{i:02d}-open-{demo_scheme}",
+                demo_scheme=demo_scheme,
+                prompt=demo_prefix + "\n".join(stanza),
+                cue_distance_1=near[0],
+                cue_distance_2=middle[0],
+                cue_distance_3=far[0],
+            )
+        )
+    return examples
+
+
 def build_dataset() -> list[Example]:
     return [
         Example(f"{i:02d}-{name}", anchor, target, first, second, wrapper)

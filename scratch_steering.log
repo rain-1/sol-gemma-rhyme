@@ -1,0 +1,53 @@
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]/home/ubuntu/.local/lib/python3.12/site-packages/bitsandbytes/backends/cuda/ops.py:213: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
+  torch._check_is_size(blocksize)
+Loading weights:  10%|▉         | 189/1951 [00:00<00:00, 1861.96it/s]Loading weights:  27%|██▋       | 530/1951 [00:00<00:00, 2763.26it/s]Loading weights:  41%|████▏     | 807/1951 [00:00<00:01, 745.45it/s] Loading weights: 100%|██████████| 1951/1951 [00:00<00:00, 4308.92it/s]
+steering 14 couplets across 14 target families
+layer 11 alpha 1.0 full_mean: target mass 0.012 (baseline 0.015) top1-in-target 0.00
+layer 11 alpha 2.0 full_mean: target mass 0.016 (baseline 0.015) top1-in-target 0.00
+layer 11 alpha 4.0 full_mean: target mass 0.081 (baseline 0.015) top1-in-target 0.07
+layer 11 alpha 8.0 full_mean: target mass 0.068 (baseline 0.015) top1-in-target 0.14
+layer 11 alpha 1.0 holdout_mean: target mass 0.012 (baseline 0.015) top1-in-target 0.00
+layer 11 alpha 2.0 holdout_mean: target mass 0.016 (baseline 0.015) top1-in-target 0.00
+layer 11 alpha 4.0 holdout_mean: target mass 0.060 (baseline 0.015) top1-in-target 0.00
+layer 11 alpha 8.0 holdout_mean: target mass 0.038 (baseline 0.015) top1-in-target 0.07
+layer 11 alpha 1.0 random_words: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 11 alpha 2.0 random_words: target mass 0.016 (baseline 0.015) top1-in-target 0.00
+layer 11 alpha 4.0 random_words: target mass 0.019 (baseline 0.015) top1-in-target 0.00
+layer 11 alpha 8.0 random_words: target mass 0.031 (baseline 0.015) top1-in-target 0.07
+layer 12 alpha 1.0 full_mean: target mass 0.036 (baseline 0.015) top1-in-target 0.00
+layer 12 alpha 2.0 full_mean: target mass 0.086 (baseline 0.015) top1-in-target 0.14
+layer 12 alpha 4.0 full_mean: target mass 0.110 (baseline 0.015) top1-in-target 0.14
+layer 12 alpha 8.0 full_mean: target mass 0.036 (baseline 0.015) top1-in-target 0.07
+layer 12 alpha 1.0 holdout_mean: target mass 0.037 (baseline 0.015) top1-in-target 0.00
+layer 12 alpha 2.0 holdout_mean: target mass 0.085 (baseline 0.015) top1-in-target 0.14
+layer 12 alpha 4.0 holdout_mean: target mass 0.090 (baseline 0.015) top1-in-target 0.14
+layer 12 alpha 8.0 holdout_mean: target mass 0.033 (baseline 0.015) top1-in-target 0.07
+layer 12 alpha 1.0 random_words: target mass 0.011 (baseline 0.015) top1-in-target 0.00
+layer 12 alpha 2.0 random_words: target mass 0.008 (baseline 0.015) top1-in-target 0.00
+layer 12 alpha 4.0 random_words: target mass 0.005 (baseline 0.015) top1-in-target 0.00
+layer 12 alpha 8.0 random_words: target mass 0.012 (baseline 0.015) top1-in-target 0.00
+layer 13 alpha 1.0 full_mean: target mass 0.258 (baseline 0.015) top1-in-target 0.36
+layer 13 alpha 2.0 full_mean: target mass 0.374 (baseline 0.015) top1-in-target 0.50
+layer 13 alpha 4.0 full_mean: target mass 0.211 (baseline 0.015) top1-in-target 0.29
+layer 13 alpha 8.0 full_mean: target mass 0.042 (baseline 0.015) top1-in-target 0.07
+layer 13 alpha 1.0 holdout_mean: target mass 0.248 (baseline 0.015) top1-in-target 0.36
+layer 13 alpha 2.0 holdout_mean: target mass 0.366 (baseline 0.015) top1-in-target 0.50
+layer 13 alpha 4.0 holdout_mean: target mass 0.191 (baseline 0.015) top1-in-target 0.29
+layer 13 alpha 8.0 holdout_mean: target mass 0.028 (baseline 0.015) top1-in-target 0.00
+layer 13 alpha 1.0 random_words: target mass 0.017 (baseline 0.015) top1-in-target 0.00
+layer 13 alpha 2.0 random_words: target mass 0.024 (baseline 0.015) top1-in-target 0.00
+layer 13 alpha 4.0 random_words: target mass 0.026 (baseline 0.015) top1-in-target 0.00
+layer 13 alpha 8.0 random_words: target mass 0.013 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 1.0 full_mean: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 2.0 full_mean: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 4.0 full_mean: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 8.0 full_mean: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 1.0 holdout_mean: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 2.0 holdout_mean: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 4.0 holdout_mean: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 8.0 holdout_mean: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 1.0 random_words: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 2.0 random_words: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 4.0 random_words: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+layer 14 alpha 8.0 random_words: target mass 0.015 (baseline 0.015) top1-in-target 0.00
+Wrote steering results to artifacts/gemma4_steering

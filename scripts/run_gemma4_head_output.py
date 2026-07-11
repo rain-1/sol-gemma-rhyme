@@ -18,7 +18,7 @@ Three questions about the retrieval head's output at the final token:
 from __future__ import annotations
 
 import argparse
-from contextlib import ExitStack, contextmanager
+from contextlib import contextmanager
 from pathlib import Path
 
 import numpy as np
@@ -42,16 +42,10 @@ from validate_gemma4_circuit import CONTROLLED_PAIRS, candidate_difference, cont
 CANDIDATE_LAYER, CANDIDATE_HEAD = 24, 3
 
 
-def rms_normalize(x, weight, eps):
-    x = x.float()
-    scale = torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + eps)
-    return x * scale * (1.0 + weight.float())
-
-
 def frozen_rms(x, reference, weight, eps):
-    """Apply an RMSNorm whose scale is computed from `reference`, not `x`."""
+    """Gemma4RMSNorm (`x/rms * weight`) with the scale computed from `reference`."""
     scale = torch.rsqrt(reference.float().pow(2).mean(-1, keepdim=True) + eps)
-    return x.float() * scale * (1.0 + weight.float())
+    return x.float() * scale * weight.float()
 
 
 @torch.inference_mode()
@@ -89,7 +83,7 @@ def head_residual_updates(o_proj_input, layer):
         s = slice(head * head_dim, (head + 1) * head_dim)
         masked[:, s] = o_proj_input[:, s]
         raw = layer.self_attn.o_proj(masked)
-        updates.append(frozen_rms(raw, full, norm.weight, norm.variance_epsilon))
+        updates.append(frozen_rms(raw, full, norm.weight, norm.eps))
     return updates  # list of (batch, width) float32
 
 
@@ -116,7 +110,7 @@ def run(args):
     position_of = {token_id: i for i, token_id in enumerate(id_list)}
     dla_rows = []
     for head, update in enumerate(updates):
-        normed = frozen_rms(update, last_residual, final_norm.weight, final_norm.variance_epsilon)
+        normed = frozen_rms(update, last_residual, final_norm.weight, final_norm.eps)
         contribution = normed.to(unembed.dtype) @ unembed.T  # (batch, eligible)
         contribution = contribution.float()
         for i, (anchor, target) in enumerate(zip(anchors, targets)):
@@ -135,6 +129,9 @@ def run(args):
                 "nonfamily_mean_contribution": float(contribution[i][~family_mask].mean()),
                 "target_contribution": float(
                     contribution[i][position_of[target_token_id(bundle.tokenizer, target)]]
+                ),
+                "anchor_contribution": float(
+                    contribution[i][position_of[target_token_id(bundle.tokenizer, anchor)]]
                 ),
                 "top20_words": top_words,
                 "top20_family_fraction": float(np.mean([rhymes(anchor, w) for w in top_words])),

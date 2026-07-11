@@ -1,3 +1,7 @@
 Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]/home/ubuntu/.local/lib/python3.12/site-packages/bitsandbytes/backends/cuda/ops.py:213: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
   torch._check_is_size(blocksize)
 Loading weights:  10%|▉         | 194/1951 [00:00<00:00, 1911.77it/s]Loading weights:  30%|██▉       | 577/1951 [00:00<00:00, 3033.02it/s]Loading weights:  45%|████▌     | 881/1951 [00:00<00:01, 728.04it/s] Loading weights:  55%|█████▍    | 1064/1951 [00:01<00:01, 774.10it/s]Loading weights:  62%|██████▏   | 1211/1951 [00:01<00:00, 768.29it/s]Loading weights:  68%|██████▊   | 1333/1951 [00:01<00:00, 808.51it/s]Loading weights:  92%|█████████▏| 1803/1951 [00:01<00:00, 1490.51it/s]Loading weights: 100%|██████████| 1951/1951 [00:01<00:00, 1179.71it/s]
+/home/ubuntu/code/sol-pythia-interp/scripts/run_gemma4_interpretability.py:264: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  "target_logit": float(pair_logits[0]),
+Wrote Gemma 4 causal analysis to artifacts/gemma4_interpretability

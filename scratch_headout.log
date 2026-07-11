@@ -1,0 +1,13 @@
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]/home/ubuntu/.local/lib/python3.12/site-packages/bitsandbytes/backends/cuda/ops.py:213: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
+  torch._check_is_size(blocksize)
+Loading weights:   7%|▋         | 132/1951 [00:00<00:01, 1297.46it/s]Loading weights:  23%|██▎       | 439/1951 [00:00<00:00, 2332.62it/s]Loading weights:  39%|███▊      | 754/1951 [00:00<00:00, 1871.61it/s]Loading weights:  49%|████▉     | 954/1951 [00:01<00:01, 622.92it/s] Loading weights:  56%|█████▌    | 1086/1951 [00:01<00:01, 647.52it/s]Loading weights:  61%|██████▏   | 1197/1951 [00:01<00:01, 640.23it/s]Loading weights:  66%|██████▌   | 1292/1951 [00:01<00:01, 635.71it/s]Loading weights:  83%|████████▎ | 1625/1951 [00:01<00:00, 1087.58it/s]Loading weights: 100%|██████████| 1951/1951 [00:01<00:00, 1050.88it/s]
+/home/ubuntu/code/sol-pythia-interp/scripts/run_gemma4_head_output.py:128: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
+  "family_mean_contribution": float(contribution[i][family_mask].mean()),
+L24H3 mean top-20 family fraction: 0.228
+mean mass clean 0.786 | total ablation 0.134 | direct-only ablation 0.760
+rank 1: mean recovery 0.011
+rank 2: mean recovery 0.120
+rank 4: mean recovery 0.106
+rank 8: mean recovery 0.269
+Wrote head output analysis to artifacts/gemma4_head_output
