@@ -158,7 +158,7 @@ def make_counterfactual_prompts(examples):
 
 
 def run(args):
-    bundle = load_model(MODEL, load_in_4bit=True)
+    bundle = load_model(MODEL, load_in_4bit=True, attn_implementation="eager")
     model = bundle.model
     layers = model.model.language_model.layers
     examples = build_elicitation_dataset("rhyming")
@@ -208,7 +208,6 @@ def run(args):
 
     # Attention patterns: final query -> target anchor, aggregated only after all
     # examples are collected. Attention is descriptive; ablation is causal.
-    model.set_attn_implementation("eager")
     with torch.inference_mode():
         outputs = model(**inputs, logits_to_keep=1, use_cache=False, output_attentions=True)
     anchor_pos = anchor_positions(prompts, anchors, bundle, inputs["input_ids"].shape[1])
@@ -225,7 +224,6 @@ def run(args):
                                                 attn[example_index, head, -1].float().clamp_min(1e-12).log()).sum()),
                 })
     write_jsonl(args.output / "attention_patterns.jsonl", attention_rows)
-    model.set_attn_implementation("sdpa")
 
     # Logit lens at the final position for ordered and shuffled contexts. The
     # comparison is the reference rhyme against the strongest baseline non-rhyme.

@@ -170,6 +170,93 @@ def build_elicitation_dataset(condition: str = "rhyming") -> list[Example]:
     ]
 
 
+# Demonstration couplets for quatrain schemes. Their rhyme families are
+# disjoint from every family used by COUPLETS anchors and targets.
+SCHEME_DEMONSTRATION_COUPLETS = [
+    ("She opened up her favorite dusty book", "He gave the painting one long careful look"),
+    ("The engine roared to life with a sudden start", "Music filled the dancer's beating heart"),
+    ("The acrobat performed a great jump", "He crashed down with an awful thump"),
+    ("The boxer stepped into the ring", "His corner coach encouraged him to swing"),
+]
+
+# Line orders for a quatrain built from couplet A (a1 rhymes with a2) and
+# couplet B. Every scheme ends with B's incomplete line, so the correct
+# completion is always B's family; only the position of the B cue line moves.
+SCHEME_ORDERS = {
+    "aabb": ("a1", "a2", "b1"),
+    "abab": ("a1", "b1", "a2"),
+    "abba": ("b1", "a1", "a2"),
+}
+
+
+@dataclass(frozen=True)
+class SchemeExample:
+    id: str
+    scheme: str
+    prompt: str
+    anchor_a: str  # family that must NOT be completed (its couplet is closed)
+    target_a: str
+    anchor_b: str  # cue line ending; the completion must rhyme with it
+    target_b: str
+    cue_distance: int  # lines between the cue line and the incomplete line
+
+
+def _scheme_stanza(couplet_a, couplet_b, scheme: str, complete: bool) -> list[str]:
+    a1 = couplet_a[2]
+    a2 = f"{couplet_a[3]} {couplet_a[1]}"
+    b1 = couplet_b[2]
+    lines = {"a1": a1, "a2": a2, "b1": b1}
+    ordered = [lines[name] for name in SCHEME_ORDERS[scheme]]
+    final = couplet_b[3] + (f" {couplet_b[1]}" if complete else "")
+    return ordered + [final]
+
+
+def build_scheme_dataset(scheme: str, demo_stanzas: int = 2) -> list[SchemeExample]:
+    """Quatrain completion prompts with matched lines across schemes.
+
+    Each target pairs couplet `i` with couplet `i+1` (skipping same-family
+    pairs). The prompt begins with `demo_stanzas` completed quatrains in the
+    same scheme, built from demonstration couplets whose families are disjoint
+    from all targets.
+    """
+    if scheme not in SCHEME_ORDERS:
+        raise ValueError(f"Unknown scheme: {scheme}")
+    def as_couplet_tuple(pair):
+        first, second = pair
+        prefix, _, target = second.rpartition(" ")
+        return (None, target, first, prefix)
+
+    demos = []
+    for i in range(demo_stanzas):
+        couplet_a = as_couplet_tuple(SCHEME_DEMONSTRATION_COUPLETS[2 * i])
+        couplet_b = as_couplet_tuple(SCHEME_DEMONSTRATION_COUPLETS[2 * i + 1])
+        demos.extend(_scheme_stanza(couplet_a, couplet_b, scheme, complete=True))
+    prefix = "\n".join(demos) + "\n\n" if demos else ""
+
+    examples = []
+    cue_distance = {"aabb": 1, "abab": 2, "abba": 3}[scheme]
+    for i, couplet_a in enumerate(COUPLETS):
+        couplet_b = COUPLETS[(i + 1) % len(COUPLETS)]
+        offset = 1
+        while rhymes(couplet_a[0], couplet_b[0]) or rhymes(couplet_a[1], couplet_b[0]):
+            offset += 1
+            couplet_b = COUPLETS[(i + offset) % len(COUPLETS)]
+        stanza = _scheme_stanza(couplet_a, couplet_b, scheme, complete=False)
+        examples.append(
+            SchemeExample(
+                id=f"{i:02d}-{scheme}",
+                scheme=scheme,
+                prompt=prefix + "\n".join(stanza),
+                anchor_a=couplet_a[0],
+                target_a=couplet_a[1],
+                anchor_b=couplet_b[0],
+                target_b=couplet_b[1],
+                cue_distance=cue_distance,
+            )
+        )
+    return examples
+
+
 def build_dataset() -> list[Example]:
     return [
         Example(f"{i:02d}-{name}", anchor, target, first, second, wrapper)

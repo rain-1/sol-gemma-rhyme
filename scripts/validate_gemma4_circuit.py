@@ -94,7 +94,7 @@ def patch_head_final(layer, head, source, source_order=None):
 
 
 def run(output: Path):
-    bundle = load_model(MODEL, load_in_4bit=True)
+    bundle = load_model(MODEL, load_in_4bit=True, attn_implementation="eager")
     model = bundle.model
     layers = model.model.language_model.layers
     candidate_layer, candidate_head = 24, 3

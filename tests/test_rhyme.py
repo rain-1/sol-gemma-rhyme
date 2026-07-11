@@ -67,3 +67,17 @@ def test_distinct_shuffled_control_preserves_target_suffix_and_length():
         assert normal.prompt.endswith(target.prompt)
         assert control.prompt.endswith(target.prompt)
         assert len(normal.prompt.splitlines()) == len(control.prompt.splitlines()) == 42
+
+
+def test_scheme_dataset_is_matched_across_schemes():
+    from rhyme_interp.dataset import build_scheme_dataset
+
+    datasets = {scheme: build_scheme_dataset(scheme) for scheme in ["aabb", "abab", "abba"]}
+    for aabb, abab, abba in zip(*datasets.values()):
+        # Same pairing and same incomplete line across schemes.
+        assert aabb.anchor_b == abab.anchor_b == abba.anchor_b
+        assert aabb.prompt.splitlines()[-1] == abab.prompt.splitlines()[-1]
+        # The stanza contains the same four lines in a different order.
+        assert sorted(aabb.prompt.splitlines()[-4:]) == sorted(abab.prompt.splitlines()[-4:])
+        assert not rhymes(aabb.anchor_a, aabb.anchor_b)
+    assert [d.cue_distance for d in (datasets["aabb"][0], datasets["abab"][0], datasets["abba"][0])] == [1, 2, 3]

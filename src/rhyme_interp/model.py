@@ -26,11 +26,21 @@ def load_model(
     model_name: str = DEFAULT_MODEL,
     device: str | None = None,
     load_in_4bit: bool = False,
+    attn_implementation: str | None = None,
 ) -> ModelBundle:
+    """Load a causal LM for analysis.
+
+    Gemma 4 batch analyses must pass `attn_implementation="eager"`: on the
+    pinned Transformers development revision the sdpa path silently ignores
+    the attention mask, so left-padded rows attend to their EOS padding and
+    produce corrupted logits. Eager matches unbatched outputs exactly.
+    """
     resolved = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     tokenizer.pad_token = tokenizer.eos_token
     kwargs = {"dtype": "auto"}
+    if attn_implementation:
+        kwargs["attn_implementation"] = attn_implementation
     if load_in_4bit:
         kwargs.update(
             quantization_config=BitsAndBytesConfig(

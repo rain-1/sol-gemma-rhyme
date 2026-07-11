@@ -1,0 +1,10 @@
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]/home/ubuntu/.local/lib/python3.12/site-packages/bitsandbytes/backends/cuda/ops.py:213: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
+  torch._check_is_size(blocksize)
+Loading weights:  11%|█▏        | 220/1951 [00:00<00:00, 2198.47it/s]Loading weights:  32%|███▏      | 628/1951 [00:00<00:00, 3284.78it/s]Loading weights:  49%|████▉     | 957/1951 [00:01<00:01, 781.54it/s] Loading weights:  59%|█████▉    | 1154/1951 [00:01<00:00, 800.77it/s]Loading weights:  67%|██████▋   | 1307/1951 [00:01<00:00, 810.91it/s]Loading weights:  94%|█████████▍| 1835/1951 [00:01<00:00, 1490.40it/s]Loading weights: 100%|██████████| 1951/1951 [00:01<00:00, 1265.04it/s]
+aabb demos=0: correct 0.636
+aabb demos=2: correct 0.687
+abab demos=0: correct 0.651
+abab demos=2: correct 0.654
+abba demos=0: correct 0.320
+abba demos=2: correct 0.460
+Wrote scheme routing analysis to artifacts/gemma4_schemes
