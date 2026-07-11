@@ -71,7 +71,7 @@ def run(args):
     states = data["states_final_word"].astype(np.float32)  # (words, layers+1, width)
     families = json.loads((representation / "families.json").read_text())
 
-    bundle = load_model(MODEL, load_in_4bit=True, attn_implementation="eager")
+    bundle = load_model(MODEL, load_in_4bit=not args.bf16, attn_implementation="eager")
     layers = bundle.model.model.language_model.layers
 
     examples = build_elicitation_dataset("rhyming")
@@ -173,6 +173,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--representation", type=Path, default=Path("artifacts/gemma4_representation"))
     parser.add_argument("--output", type=Path, default=Path("artifacts/gemma4_steering"))
+    parser.add_argument("--bf16", action="store_true", help="Run in BF16 instead of NF4")
     args = parser.parse_args()
     run(args)
 

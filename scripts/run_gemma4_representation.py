@@ -156,7 +156,7 @@ def run(args):
     if args.from_saved:
         words, labels, captured, kv_captured, families = load_saved(args.output)
     else:
-        bundle = load_model(MODEL, load_in_4bit=True, attn_implementation="eager")
+        bundle = load_model(MODEL, load_in_4bit=not args.bf16, attn_implementation="eager")
         families = build_families(bundle.token_words)
         words = [word for family in families for word in family.words]
         family_of = {word: family.name for family in families for word in family.words}
@@ -282,6 +282,7 @@ def run(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=Path("artifacts/gemma4_representation"))
+    parser.add_argument("--bf16", action="store_true", help="Run in BF16 instead of NF4")
     parser.add_argument("--from-saved", action="store_true",
                         help="Reuse saved activations instead of running the model")
     args = parser.parse_args()

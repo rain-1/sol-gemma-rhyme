@@ -75,7 +75,7 @@ def ending_positions(examples, prompts, bundle, padded_length):
 
 
 def run(args):
-    bundle = load_model(MODEL, load_in_4bit=True, attn_implementation="eager")
+    bundle = load_model(MODEL, load_in_4bit=not args.bf16, attn_implementation="eager")
     model = bundle.model
     layers = model.model.language_model.layers
     heads = model.config.text_config.num_attention_heads
@@ -141,6 +141,7 @@ def run(args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=Path("artifacts/gemma4_schemes"))
+    parser.add_argument("--bf16", action="store_true", help="Run in BF16 instead of NF4")
     args = parser.parse_args()
     run(args)
 

@@ -42,6 +42,14 @@ definitions.
 6. **The transferred constraint is ~16–32 dimensional** within the head's
    256-dimensional value channel (rank-32 patch recovers 77% of the effect;
    matched random subspaces recover 6%).
+7. **The family code is compositional.** Probes for the coda transfer to
+   entirely held-out families at 82% (vowel 45%; baselines ~17%): the value
+   memory reuses phonemic parts across families rather than storing family
+   identities.
+8. **The scheme signal is split between query and memory.** Swapping the
+   final-token state and the stanza's stored K/V between AABB- and ABAB-demo
+   conditions each moves L24H3's target halfway; swapping both reproduces the
+   other condition exactly.
 
 A serious infrastructure bug was also found and fixed: the pinned Transformers
 development revision silently ignores the attention mask on Gemma 4's sdpa
@@ -201,6 +209,54 @@ as defined by the stanza pattern in context"** — closed pairs are skipped at
 every distance, and which open line wins is controlled by the demonstrated
 scheme.
 
+## E6. The stored code is compositional: vowel and coda are reusable parts
+
+A rhyme family is a (stressed vowel, coda) pair. If families were stored as
+unrelated identities, a probe for the vowel could not generalize to a family
+it never saw. Leave-one-family-out probes (train on 29 families, test the
+30th, only where the label also occurs elsewhere):
+
+| Representation | vowel LOFO (10 classes) | coda LOFO (12 classes) |
+|---|---:|---:|
+| Embedding layer | 23.9% | 29.9% |
+| Residual, layer 13 | 40.0% | 65.4% |
+| **Layer-14 shared value** | **44.7%** | **81.7%** |
+| Layer-14 shared key | 37.3% | 33.8% |
+
+Majority-class baselines are ~17%. The value memory recognizes the coda of a
+*never-seen* family at 82% — the code reuses phonemic components across
+families rather than assigning arbitrary family IDs. Centroid RSA agrees:
+same-coda families are much closer than different-coda families (cosine gap
++0.30 in the value memory; +0.07 at the embedding). The coda is more strongly
+shared than the vowel, which is what exact-rhyme behavior needs: an exact
+rhyme requires the full vowel+coda match, and codas are the discrete,
+spelling-variable part (`-ight/-ite`, `-ind/-ined`).
+
+## E7. The scheme signal lives in both the query and the memory — and in
+nothing else
+
+The open-cue AABB-demo and ABAB-demo prompts contain identical target stanzas
+and equally long demonstration prefixes (the same eight lines, reordered), so
+activations align position-for-position while the retrieved cue differs
+(distance 1 versus 2). Swapping computation between conditions:
+
+| Intervention on AABB-demo prompt | attn d1 / d2 | mass d1 / d2 |
+|---|---|---|
+| none (AABB behavior) | 0.596 / 0.134 | 0.064 / 0.002 |
+| final-token residual into L24 from ABAB run | 0.396 / 0.243 | 0.011 / 0.014 |
+| stanza-position shared K/V from ABAB run | 0.296 / 0.369 | 0.010 / 0.059 |
+| **both** | **0.129 / 0.523** | 0.002 / 0.061 |
+| (true ABAB behavior) | 0.130 / 0.523 | 0.002 / 0.061 |
+
+The reverse direction is exactly symmetric. Each pathway alone moves the
+head's target roughly halfway; the two together reproduce the donor condition
+to three decimal places. So the demonstrations act twice: they change how the
+stanza's line endings are *encoded into the shared memory* (which ending is
+addressable — and this pathway carries most of the behavioral mass), and they
+change the *final-token query* that addresses it. Routing is redundantly
+distributed across exactly these two loci, and nothing else in the prompt
+differs.
+
 ## E5. No evidence of line-start planning
 
 ![Planning analysis](figures/gemma4_phase2_planning.png)
@@ -246,12 +302,14 @@ Phase 1's conclusions stand unchanged; its batches had little length variance.
 anchor token at a line ending
     ↓
 layers 12–13 compute a largely spelling-invariant rhyme-family code
-    (30-way linearly decodable; portable as a mean-difference vector)
+    (30-way linearly decodable; portable as a mean-difference vector;
+     built from reusable vowel and coda components)
     ↓
 layer 14 writes it into the shared full-attention VALUE memory
     (the network's cleanest phonological object; steering after this is inert)
     ↓
-the stanza pattern in context marks which line endings are "open"
+the stanza pattern in context is encoded twice: as addressability marks on
+    the stored line endings AND in the final-token query state
     ↓
 L24H3's final-token query addresses the scheme-appropriate open ending
     (re-aimable by two demonstration stanzas; default: two lines back)
@@ -300,6 +358,8 @@ as explicit token preferences only at the end.
 .venv/bin/python scripts/run_gemma4_open_cue.py         # E4 open-cue routing
 .venv/bin/python scripts/run_gemma4_haiku_quatrains.py  # E4 external validity
 .venv/bin/python scripts/run_gemma4_planning.py         # E5 planning lens
+.venv/bin/python scripts/run_gemma4_phoneme_probe.py    # E6 compositionality
+.venv/bin/python scripts/run_gemma4_scheme_signal.py    # E7 query vs memory
 .venv/bin/python scripts/plot_gemma4_phase2.py          # figures
 ```
 
