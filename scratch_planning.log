@@ -1,15 +1,0 @@
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]/home/ubuntu/.local/lib/python3.12/site-packages/bitsandbytes/backends/cuda/ops.py:213: FutureWarning: _check_is_size will be removed in a future PyTorch release along with guard_size_oblivious.     Use _check(i >= 0) instead.
-  torch._check_is_size(blocksize)
-Loading weights:   9%|▊         | 167/1951 [00:00<00:01, 1665.08it/s]Loading weights:  25%|██▍       | 483/1951 [00:00<00:00, 2542.81it/s]Loading weights:  38%|███▊      | 738/1951 [00:00<00:00, 2313.54it/s]Loading weights:  50%|████▉     | 972/1951 [00:01<00:01, 541.13it/s] Loading weights:  58%|█████▊    | 1123/1951 [00:01<00:01, 541.21it/s]Loading weights:  64%|██████▎   | 1239/1951 [00:01<00:01, 548.39it/s]Loading weights:  68%|██████▊   | 1336/1951 [00:01<00:01, 602.62it/s]Loading weights:  83%|████████▎ | 1625/1951 [00:01<00:00, 957.64it/s]Loading weights: 100%|██████████| 1951/1951 [00:02<00:00, 935.90it/s]
-/home/ubuntu/code/sol-pythia-interp/scripts/run_gemma4_planning.py:98: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
-Consider using tensor.detach() first. (Triggered internally at /pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:836.)
-  row[f"family_mass_layer_{layer}"] = float(probs[mask].sum())
-offset 0: n=25 attn 0.020 mass@13 0.000 mass@34 0.000
-offset 1: n=25 attn 0.037 mass@13 0.004 mass@34 0.000
-offset 2: n=25 attn 0.056 mass@13 0.000 mass@34 0.000
-offset 3: n=25 attn 0.127 mass@13 0.000 mass@34 0.000
-offset 4: n=25 attn 0.579 mass@13 0.000 mass@34 0.034
-offset 5: n=24 attn 0.850 mass@13 0.000 mass@34 0.147
-offset 6: n=13 attn 0.921 mass@13 0.000 mass@34 0.133
-offset 7: n=2 attn 0.939 mass@13 0.000 mass@34 0.015
-Wrote planning analysis to artifacts/gemma4_planning
