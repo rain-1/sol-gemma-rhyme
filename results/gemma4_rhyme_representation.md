@@ -329,10 +329,33 @@ Where can the rhyme set be read out? Not from the head's output — from the
 after the late MLPs. The "rhyme set" exists as a family *code* mid-network and
 as explicit token preferences only at the end.
 
+## BF16 replication
+
+The three central phase-2 results were repeated in BF16 (activations
+recaptured, vectors rebuilt, prompts rerun; `--bf16` on the representation,
+steering, and scheme scripts):
+
+| Quantity | NF4 | BF16 |
+|---|---:|---:|
+| L14 value 30-family probe | 89.1% | 87.2% |
+| L14 value cross-spelling / within | 57.1% / 91.7% | 55.2% / 87.5% |
+| L14 key 30-family probe | 60.2% | 50.7% |
+| Layer-13 residual probe | 74.9% | 73.3% |
+| Steering, layer 13, strength 2 (full / holdout) | 37.4% / 36.6% | 36.5% / 35.3% |
+| Steering, layer 14 (any strength) | baseline | baseline |
+| ABAB correct mass, no demos / with demos | 65.1% / 65.4% | 73.6% / 72.2% |
+| ABBA correct mass, with demos | 46.0% | 60.8% |
+| L24H3 cue attention AABB / ABAB / ABBA | 87.6 / 71.1 / 44.7% | 87.9 / 85.2 / 61.3% |
+| L24H3 ablation, ABAB (demos) | 65% → 14% | 72% → 17% |
+
+Everything replicates; scheme routing is, if anything, *stronger* at full
+precision (NF4 slightly degrades the harder ABBA condition). None of the
+phase-2 conclusions rest on quantization artifacts.
+
 ## Limitations
 
-- All phase-2 numbers are NF4; phase 1's BF16 check covered only the central
-  head result. The probe/steering/scheme results have no BF16 replication yet.
+- The E2 head-output analyses (DLA, direct/indirect, rank), open-cue,
+  scheme-signal, and planning experiments are NF4-only.
 - 30 families × ≤12 words is small for probing standards; cross-spelling
   splits are unbalanced across families, and proper-noun-ish members survive
   the frequency filter in a few families.
