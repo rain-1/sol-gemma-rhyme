@@ -35,21 +35,27 @@ definitions.
    1, 2, or 3. With three equally open cues, two demonstration stanzas
    reprogram which line the head addresses. The default policy with no
    demonstrations is "two lines back" — the common-meter quatrain convention.
-5. **No line-start planning.** Unlike published results on Claude, this 2B
-   base model shows no evidence of choosing the rhyme word early: the
-   retrieval head engages progressively along the final line (2% → 94%
-   attention) and the family becomes readable only at the last positions.
-6. **The transferred constraint is ~16–32 dimensional** within the head's
-   256-dimensional value channel (rank-32 patch recovers 77% of the effect;
-   matched random subspaces recover 6%).
-7. **The family code is compositional.** Probes for the coda transfer to
-   entirely held-out families at 82% (vowel 45%; baselines ~17%): the value
-   memory reuses phonemic parts across families rather than storing family
-   identities.
-8. **The scheme signal is split between query and memory.** Swapping the
-   final-token state and the stanza's stored K/V between AABB- and ABAB-demo
-   conditions each moves L24H3's target halfway; swapping both reproduces the
-   other condition exactly.
+5. **We find no causally transferable line-start plan in the pathways tested.**
+   The retrieval head engages progressively along the final line. More
+   importantly, counterfactual residual and shared-memory patches at five
+   line positions recover less than 1% of the donor-family effect, while the
+   same patch at the anchor recovers essentially all of it. This rules out a
+   causally sufficient family code in those tested states, not every possible
+   distributed or nonlinear plan.
+6. **The transferred constraint is concentrated in a data-aligned subspace.**
+   The head channel is 512-dimensional, not 256-dimensional. Its top 16 and
+   32 principal components recover 46% and 77% of the effect, versus 2.5% and
+   5.8% for matched random subspaces. At the true full rank of 512, PCA,
+   random, and explicit identity patches agree exactly.
+7. **The family code supports causal phonological recombination.** Probes for
+   the coda transfer to entirely held-out families at 82% (vowel 45%;
+   baselines ~17%). A stricter causal test constructs a held-out family from
+   its vowel and coda components learned only from other families; this raises
+   its output probability by 12.9 points in NF4 and 14.5 points in BF16.
+8. **Scheme routing is split between a late query and memory keys.** The
+   layer-14 values carry rhyme content, but the keys determine which line
+   ending is addressable. The usable query-side routing signal appears at
+   layer 23 through both attention and MLP updates.
 
 A serious infrastructure bug was also found and fixed: the pinned Transformers
 development revision silently ignores the attention mask on Gemma 4's sdpa
@@ -150,12 +156,16 @@ through layers 25–34 — chiefly the late MLPs — which convert retrieved anc
 identity into the concrete rhyme-set preference. This explains phase 1's large
 late-MLP ablation effects.
 
-**Dimensionality.** Restricting the head-output transfer (phase 1's controlled
-pairs) to the top-k principal components of the head's output distribution
-over 359 anchors: k=16 recovers 46%, k=32 recovers 77%, k=64 recovers 85%
-(random subspaces of the same rank: ≤6% until k≥64). The rhyme constraint is
-not a single direction but a moderate-dimensional (~16–32 of 256) code —
-consistent with it encoding *which family*, of many, is required.
+**Data-aligned concentration.** Restricting the head-output transfer (phase
+1's controlled pairs) to the top-k principal components of the head's output
+distribution over 359 anchors: k=16 recovers 46%, k=32 recovers 77%, and k=64
+recovers 85%. Matched nested random subspaces recover 2.5%, 5.8%, and 10.0%.
+The full head channel is **512-dimensional**; the earlier report incorrectly
+treated rank 256 as full rank. At the true full rank, PCA, random, and an
+explicit identity transform produce identical logits and identical 111%
+recovery. The justified conclusion is therefore that the causal signal is
+strongly concentrated in directions fit to this dataset. These results do
+not establish an intrinsic dimensionality of 16–32 dimensions.
 
 ## E4. Rhyme schemes: routing is structural, in-context, and generalizes
 
@@ -203,6 +213,13 @@ cue-family mass 73.0%, closed-family mass 0.2%, greedy rhymes with the cue in
 lines back (4.3% on the adjacent closed ending). The mechanism is not an
 artifact of the hand-written benchmark.
 
+Phase 3 broadens this external test to 30 newly generated poems per scheme,
+with full raw-generation provenance. No-demonstration greedy exact-rhyme rates
+are **88.0% AABB**, **89.7% ABAB**, and **26.7% ABBA**; L24H3 ablation reduces
+them to 24.0%, 3.4%, and 13.3%. Correct-cue attention is 77.8%, 71.7%, and
+35.2%. Thus AABB and ABAB generalize strongly, while ABBA's weakness is a real
+external limitation rather than an artifact of the matched benchmark.
+
 Together these results refine the phase-1 story: the head's addressing policy
 is best described as **"attend to the line ending that still needs a rhyme,
 as defined by the stanza pattern in context"** — closed pairs are skipped at
@@ -232,8 +249,20 @@ shared than the vowel, which is what exact-rhyme behavior needs: an exact
 rhyme requires the full vowel+coda match, and codas are the discrete,
 spelling-variable part (`-ight/-ite`, `-ind/-ined`).
 
-## E7. The scheme signal lives in both the query and the memory — and in
-nothing else
+Phase 3 tests this interpretation causally rather than relying on probe
+accuracy. For each held-out vowel+coda family, an additive intervention is
+built from examples that share its vowel with other codas and its coda with
+other vowels; the target family itself is omitted from construction. On the
+preregistered 12-family confirmation split, this raises target-family mass by
+**12.92 percentage points** (family bootstrap 95% CI 7.31–19.36), versus 0.87
+for a random-vector control and 1.48 for shuffled component assignments. All
+12 families move positively, cross-spelling items gain 7.09 points, and a
+BF16 replication gains 14.52 points (CI 8.02–21.86). This is causal evidence
+that reusable vowel and coda information can be recombined into an unseen
+rhyme-family constraint. Full design and results are in
+`gemma4_factorial_phonology.md`.
+
+## E7. Scheme routing uses memory keys and a late-formed query
 
 The open-cue AABB-demo and ABAB-demo prompts contain identical target stanzas
 and equally long demonstration prefixes (the same eight lines, reordered), so
@@ -248,27 +277,49 @@ activations align position-for-position while the retrieved cue differs
 | **both** | **0.129 / 0.523** | 0.002 / 0.061 |
 | (true ABAB behavior) | 0.130 / 0.523 | 0.002 / 0.061 |
 
-The reverse direction is exactly symmetric. Each pathway alone moves the
-head's target roughly halfway; the two together reproduce the donor condition
-to three decimal places. So the demonstrations act twice: they change how the
-stanza's line endings are *encoded into the shared memory* (which ending is
-addressable — and this pathway carries most of the behavioral mass), and they
-change the *final-token query* that addresses it. Routing is redundantly
-distributed across exactly these two loci, and nothing else in the prompt
-differs.
+The reverse direction is closely symmetric. Each pathway alone moves the
+head's target partway; the two together reproduce the donor condition to three
+decimal places. A finer phase-3 decomposition identifies the relevant memory
+component. Patching all cue-position **keys** from the other scheme produces
+the same attention re-aiming as patching keys and values together; patching
+**values alone leaves attention at baseline**. For example, on the AABB
+destination, baseline attention to distances 1/2 is 0.596/0.134; donor keys
+change it to 0.276/0.349, while donor values leave it at 0.596/0.134. The
+reverse ABAB-to-AABB direction similarly changes 0.130/0.523 to 0.404/0.246.
 
-## E5. No evidence of line-start planning
+This gives a useful double dissociation: layer-14 **values carry the anchor's
+phonological content**, while layer-14 **keys carry scheme-dependent
+addressability**. An upstream scan finds no usable donor-query routing signal
+through layer 22; it appears abruptly after layer 23. Within that block,
+patching both its attention and MLP updates reproduces the full query swap,
+and each contributes. This localizes important routes without proving that no
+other component participates.
+
+## E5. No causally transferable line-start plan in the tested pathways
 
 ![Planning analysis](figures/gemma4_phase2_planning.png)
 
 At the newline that opens the incomplete final line, L24H3's attention to the
 anchor is 2%, rising smoothly (13% three tokens in, 58% four tokens in) to
 91% at the final position; logit-lens family mass at layer 34 is 1.3% at
-non-final positions versus 17.4% at the final position. Gemma 4 E2B satisfies
-the rhyme constraint by *incremental retrieval at emission time*, not by
-selecting the target word when the line begins. The planning behavior reported
-for Claude is therefore not a universal property of rhyming LMs; it either
-emerges with scale/training or is genuinely absent here.
+non-final positions versus 17.4% at the final position.
+
+Phase 3 adds counterfactual causal tests. A donor prompt with a different
+anchor family is patched into an otherwise matched destination at line start,
+first word, middle, penultimate input, and final input. Across residual states
+after layers 0–13, the largest mean absolute recovery at any tested line
+position is **0.81%**. Patching sliding- or full-attention keys, values, or
+both at those positions gives at most **0.72%**. These near-zero results are
+not a broken intervention: patching the anchor residual after layer 13
+recovers 99.9% of the donor effect, and patching its layer-14 full-attention
+value recovers 95.9%.
+
+Thus no tested line-position residual or shared-memory state contains a
+causally sufficient, directly transferable family identity. Together with the
+progressive attention result, the evidence favors incremental retrieval near
+emission time for this model. It cannot exclude a distributed plan that only
+works when several positions or components are patched jointly, or a
+nonlinearly encoded plan that activation patching does not preserve.
 
 ## Infrastructure finding: sdpa ignores the attention mask
 
@@ -314,7 +365,7 @@ the stanza pattern in context is encoded twice: as addressability marks on
 L24H3's final-token query addresses the scheme-appropriate open ending
     (re-aimable by two demonstration stanzas; default: two lines back)
     ↓
-the head copies an anchor-identity pointer (~16–32 useful dimensions)
+the head copies an anchor-identity pointer concentrated in data-aligned directions
     into the final position — top direct readout: the anchor and sound-alikes
     ↓
 layers 25–34 (mostly MLPs) expand the pointer into the rhyme SET
@@ -362,14 +413,15 @@ phase-2 conclusions rest on quantization artifacts.
 - Steering covers 14 couplets and one target-family assignment; the open-cue
   absolute masses are small because the neutral final line exerts its own
   semantic pull.
-- The rank analysis uses one scaffold family for its PCA basis.
+- The rank analysis uses one scaffold family for its PCA basis. Its PCA curve
+  shows data-aligned concentration, not a proven intrinsic dimensionality.
 - Logit-lens family mass is computed within the single-token-word vocabulary,
   and frozen-norm DLA linearizes two RMSNorms (softcapping ignored).
-- The planning analysis is observational (attention + lens); a causal test
-  (for example patching line-start states) has not been run.
-- The "open line" addressing description is behavioral; we have not
-  identified the upstream components that compute openness or the scheme
-  prior.
+- The causal planning test patches single positions and component classes. It
+  cannot exclude distributed, nonlinear, or jointly encoded plans.
+- Routing has been localized to layer-14 memory keys and layer-23 query-side
+  updates, but the components that infer the scheme before those points have
+  not been fully identified.
 
 ## Reproduction
 
@@ -383,6 +435,11 @@ phase-2 conclusions rest on quantization artifacts.
 .venv/bin/python scripts/run_gemma4_planning.py         # E5 planning lens
 .venv/bin/python scripts/run_gemma4_phoneme_probe.py    # E6 compositionality
 .venv/bin/python scripts/run_gemma4_scheme_signal.py    # E7 query vs memory
+.venv/bin/python scripts/run_gemma4_routing_decomposition.py # E7 keys/values/query
+.venv/bin/python scripts/run_gemma4_causal_planning.py  # E5 causal planning
+.venv/bin/python scripts/run_gemma4_factorial_phonology.py # E6 causal recombination
+.venv/bin/python scripts/run_gemma4_external_schemes.py # independent AABB/ABAB/ABBA
+.venv/bin/python scripts/verify_phase3_results.py       # artifact consistency gate
 .venv/bin/python scripts/plot_gemma4_phase2.py          # figures
 ```
 

@@ -10,6 +10,8 @@ The project now also includes a causal Gemma 4 E2B analysis in two parts:
 - Phase 2, what the circuit computes (family probes, steering, scheme
   routing, head readout, planning):
   [`results/gemma4_rhyme_representation.md`](results/gemma4_rhyme_representation.md)
+- Phase 3, causal tests of phonological recombination, routing, and planning:
+  [`results/gemma4_phase3_causal_tests.md`](results/gemma4_phase3_causal_tests.md)
 
 Run the phase-1 scan with:
 
@@ -55,8 +57,14 @@ environment install
   -> circuit discovery (`run_gemma4_interpretability.py`)
   -> circuit validation (`validate_gemma4_circuit.py`)
   -> representation / steering / schemes / planning (phase-2 scripts)
+  -> causal recombination / routing decomposition / planning patches (phase 3)
   -> report tables and figures (plot scripts)
 ```
+
+The Phase 3 report lists its experiment commands. Run
+`scripts/verify_phase3_results.py` after the experiments to validate the raw
+artifacts and regenerate the compact committed evidence summary, including
+the raw files' SHA-256 hashes.
 
 The CLI writes a `*.manifest.json` beside every model-run output. It records
 the exact model revision, precision, command, dataset SHA-256, git state, and
