@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 from contextlib import contextmanager
+import json
 from pathlib import Path
 
 import numpy as np
@@ -40,6 +41,42 @@ from rhyme_interp.dataset import build_elicitation_dataset
 from validate_gemma4_circuit import CONTROLLED_PAIRS, candidate_difference, controlled_prompt
 
 CANDIDATE_LAYER, CANDIDATE_HEAD = 24, 3
+
+
+def orthogonal_random_basis(dim: int, seed: int = 0) -> torch.Tensor:
+    """Return one fixed orthogonal basis used by every random-subspace rank.
+
+    Reusing the basis makes the random controls nested.  In particular, it
+    avoids quietly comparing rank k against a different random orientation at
+    every k.
+    """
+    generator = torch.Generator().manual_seed(seed)
+    matrix = torch.randn(dim, dim, generator=generator, dtype=torch.float64)
+    q_matrix, _ = torch.linalg.qr(matrix)
+    return q_matrix.float()
+
+
+def subspace_projector(basis: torch.Tensor, rank: int) -> torch.Tensor:
+    """Project onto the first ``rank`` rows/vectors of an orthonormal basis.
+
+    Full rank is returned as an *explicit* identity.  Constructing it as
+    ``Q.T @ Q`` in float32 leaves small errors which can become material after
+    multiplying large Gemma head activations and rounding to BF16.
+    """
+    dim = basis.shape[-1]
+    if not 1 <= rank <= dim:
+        raise ValueError(f"rank must be in [1, {dim}], got {rank}")
+    if rank == dim:
+        return torch.eye(dim, dtype=basis.dtype, device=basis.device)
+    vectors = basis[:rank]
+    return vectors.T @ vectors
+
+
+def projected_transfer(
+    source: torch.Tensor, destination: torch.Tensor, projector: torch.Tensor
+) -> torch.Tensor:
+    """Transfer the source-destination difference inside one subspace."""
+    return destination + (source - destination) @ projector
 
 
 def frozen_rms(x, reference, weight, eps):
@@ -214,7 +251,11 @@ def run(args):
         slices.append(head_slice.float().cpu())
     basis = torch.cat(slices)
     mean = basis.mean(0)
-    _, singular_values, v_matrix = torch.linalg.svd(basis - mean, full_matrices=False)
+    # full_matrices=True completes the data-supported PCA vectors with an
+    # orthonormal null-space basis.  Gemma 4 E2B's head width is 512 while this
+    # anchor dataset has only 359 rows, so a reduced SVD cannot represent a
+    # genuinely full-rank projector.
+    _, singular_values, v_matrix = torch.linalg.svd(basis - mean, full_matrices=True)
     explained = (singular_values ** 2 / (singular_values ** 2).sum()).cumsum(0)
 
     source_prompts = [controlled_prompt(a, prefix) for a, _b, prefix, _ca, _cb in CONTROLLED_PAIRS]
@@ -228,17 +269,20 @@ def run(args):
     source_slice = source_o[:, s].float().cpu()
     dest_slice = dest_o[:, s].float().cpu()
 
-    generator = torch.Generator().manual_seed(0)
+    random_basis = orthogonal_random_basis(head_dim)
     rank_rows = []
-    for k in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
-        for control in [False, True]:
-            if control:
-                random = torch.randn(basis.shape[1], basis.shape[1], generator=generator)
-                q_matrix, _ = torch.linalg.qr(random)
-                projector = q_matrix[:, :k] @ q_matrix[:, :k].T
-            else:
-                projector = v_matrix[:k].T @ v_matrix[:k]
-            patched_slice = dest_slice + (source_slice - dest_slice) @ projector
+    full_rank_logits = {}
+    ranks = sorted({k for k in [1, 2, 4, 8, 16, 32, 64, 128, 256, head_dim]
+                    if k <= head_dim})
+    for k in ranks:
+        for subspace, vectors in [("pca", v_matrix), ("random", random_basis)]:
+            projector = subspace_projector(vectors, k)
+            patched_slice = projected_transfer(source_slice, dest_slice, projector)
+            if k == head_dim and not torch.equal(patched_slice, source_slice):
+                max_error = float((patched_slice - source_slice).abs().max())
+                raise AssertionError(
+                    f"full-rank {subspace} transfer is not exact (max error {max_error})"
+                )
             patched_input = dest_o.clone()
             patched_input[:, s] = patched_slice.to(dest_o.dtype).to(bundle.device)
 
@@ -250,20 +294,67 @@ def run(args):
             handle = candidate.self_attn.o_proj.register_forward_pre_hook(hook)
             patched_logits = forward_logits(dest_inputs, bundle)
             handle.remove()
+            if k == head_dim:
+                full_rank_logits[subspace] = patched_logits.detach().float().cpu()
             for i, (anchor_a, anchor_b, _prefix, cand_a, cand_b) in enumerate(CONTROLLED_PAIRS):
                 src = candidate_difference(source_logits[i], cand_a, cand_b, bundle)
                 dst = candidate_difference(dest_logits[i], cand_a, cand_b, bundle)
                 patched = candidate_difference(patched_logits[i], cand_a, cand_b, bundle)
                 rank_rows.append({
                     "rank": k,
-                    "random_subspace": control,
+                    "subspace": subspace,
+                    # Retained for compatibility with the existing plotter.
+                    "random_subspace": subspace == "random",
                     "pair": f"{anchor_a}/{anchor_b}",
-                    "explained_variance": float(explained[k - 1]),
+                    "explained_variance": float(explained[min(k, len(explained)) - 1]),
                     "recovery": (patched - dst) / (src - dst) if abs(src - dst) > 1e-6 else None,
                 })
+    # An explicit identity row is a machine-checkable control independent of
+    # PCA/QR construction.  The three full-rank conditions must have identical
+    # logits and therefore identical recoveries.
+    identity_input = dest_o.clone()
+    identity_input[:, s] = source_slice.to(dest_o.dtype).to(bundle.device)
+
+    def identity_hook(_module, args):
+        hidden = args[0].clone()
+        hidden[:, -1] = identity_input
+        return (hidden, *args[1:])
+
+    handle = candidate.self_attn.o_proj.register_forward_pre_hook(identity_hook)
+    identity_logits = forward_logits(dest_inputs, bundle)
+    handle.remove()
+    identity_logits_cpu = identity_logits.detach().float().cpu()
+    full_rank_max_logit_error = {}
+    for subspace, logits in full_rank_logits.items():
+        error = float((logits - identity_logits_cpu).abs().max())
+        full_rank_max_logit_error[subspace] = error
+        if error != 0.0:
+            raise AssertionError(
+                f"full-rank {subspace} logits differ from identity (max error {error})"
+            )
+    for i, (anchor_a, anchor_b, _prefix, cand_a, cand_b) in enumerate(CONTROLLED_PAIRS):
+        src = candidate_difference(source_logits[i], cand_a, cand_b, bundle)
+        dst = candidate_difference(dest_logits[i], cand_a, cand_b, bundle)
+        patched = candidate_difference(identity_logits[i], cand_a, cand_b, bundle)
+        rank_rows.append({
+            "rank": head_dim,
+            "subspace": "identity",
+            "random_subspace": False,
+            "pair": f"{anchor_a}/{anchor_b}",
+            "explained_variance": 1.0,
+            "recovery": (patched - dst) / (src - dst) if abs(src - dst) > 1e-6 else None,
+        })
     write_jsonl(args.output / "head_output_rank.jsonl", rank_rows)
-    for k in [1, 2, 4, 8]:
-        rec = np.mean([r["recovery"] for r in rank_rows if r["rank"] == k and not r["random_subspace"]])
+    (args.output / "head_output_rank_sanity.json").write_text(json.dumps({
+        "head_dim": head_dim,
+        "basis_examples": len(basis),
+        "centered_data_max_rank": min(len(basis) - 1, head_dim),
+        "full_rank": head_dim,
+        "full_rank_max_logit_error_vs_identity": full_rank_max_logit_error,
+    }, indent=2) + "\n")
+    for k in ranks:
+        rec = np.mean([r["recovery"] for r in rank_rows
+                       if r["rank"] == k and r["subspace"] == "pca"])
         print(f"rank {k}: mean recovery {rec:.3f}")
     print(f"Wrote head output analysis to {args.output}")
 
