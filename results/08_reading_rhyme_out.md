@@ -35,7 +35,8 @@ chance 0.033.
   family's mean overwritten into its slot, a word with no fixed rhyme becomes a
   dial: *month* can be made to rhyme with `day` (0.85), `light` (0.78), `gold`
   (0.63), or `sea` (0.48). Even *orange* bends toward *-ight*, though it resists
-  most.
+  most. A single rank-1 **weight** edit to the layer-13 MLP makes it permanent —
+  *month* completes `light` (mass 0.82) with no hooks and no collateral damage.
 
 ## 1. Where the readout lives, and why
 
@@ -155,6 +156,37 @@ and the injection does nothing at all. That dependence is itself confirmation
 that we are driving the rhyme-retrieval pathway and not a generic output bias —
 the same head, reading the same slot, that reports 01–07 identified.
 
+## 6. Baking it into the weights (no training)
+
+The §5 patch edits the running computation. Because the write is localized to the
+layer-13 MLP, the fake rhyme can be made **permanent** with a single rank-1 edit
+to that MLP's down-projection — a ROME-style edit keyed on the anchor token, no
+training and no hooks. For the anchor's MLP-13 input `k`, set the down-projection
+output to `u = dir / (1 + gamma)` — the direction whose post-MLP-norm form points
+along the target family — via `W' = W + (u - Wk)kᵀ/(k·k)`.
+
+| Word | target | before edit | after edit (weights only) | family mass |
+|---|---|---|---|---:|
+| month | -ight | `north` | **`light`** | 0.01 → **0.82** |
+| orange | -ight | `sing` | `sing` | 0.00 → 0.10 |
+
+One rank-1 edit to one matrix permanently makes the model rhyme *month* with
+*light*, with no activation hook. **Collateral is nil:** with the edit live,
+`dark and ___` still completes `cold → old`, the sea couplet still gives `free`,
+"the capital of France is" still gives `Paris`, and "two plus two equals" still
+gives `four`. The edit fires on the anchor's code and nothing else.
+
+Orange resists here too: the *-ight* mass rises (0.00 → 0.10) but not enough to
+flip the word — even weight surgery only nudges it, exactly as under the
+activation patch.
+
+This is the sharpest confirmation of the localization: editing one direction in
+the single MLP our analysis identified is enough to install a specific false
+rhyme, permanently and specifically. Gemma's post-MLP RMSNorm caps the injected
+term's magnitude, so the edit sets the *direction* of the fake code; a word with
+an overwhelming prior like *orange* needs more than one MLP's worth of signal to
+overturn. Reproduce with `scripts/weight_surgery_rhyme.py`.
+
 ## Limits
 
 - The readout is supervised: it needs labelled words to fit the family
@@ -169,5 +201,6 @@ the same head, reading the same slot, that reports 01–07 identified.
 ```bash
 PYTHONPATH=scripts .venv/bin/python scripts/run_gemma4_representation.py  # captures the value memory
 .venv/bin/python scripts/extract_rhyme_sets.py                            # readout, coverage, query
-PYTHONPATH=scripts .venv/bin/python scripts/patch_fake_rhyme.py           # section 5
+PYTHONPATH=scripts .venv/bin/python scripts/patch_fake_rhyme.py           # section 5 (activation patch)
+PYTHONPATH=scripts .venv/bin/python scripts/weight_surgery_rhyme.py       # section 6 (rank-1 weight edit, bf16)
 ```
