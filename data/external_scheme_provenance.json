@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "built_on": "2026-07-12",
+  "builder": "scripts/build_external_scheme_dataset.py",
+  "selection_target_per_scheme": 30,
+  "sources": [
+    {
+      "file": "aabb1.raw.json",
+      "scheme": "aabb",
+      "requested_model": "haiku",
+      "prompt": "Generate 20 distinct AABB quatrains. Return ONLY a compact JSON array of objects {\"lines\":[four strings]}. Lines 1/2 exact rhyme; lines 3/4 another exact rhyme; all final words distinct lowercase CMUdict English; diverse; line 4 grammatical when final word removed. No markdown.",
+      "sha256": "8a461764e0c320c5ba19f51e5eec16dd77e9d2efbfc3b983019a0a6ceedd4528",
+      "candidate_count": 20,
+      "resolved_models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "claude_code_version": "2.1.207",
+      "generation_date": "2026-07-12",
+      "selection": "CMUdict exact-rhyme validation, then response order"
+    },
+    {
+      "file": "aabb2.raw.json",
+      "scheme": "aabb",
+      "requested_model": "haiku",
+      "prompt": "Generate 20 distinct AABB quatrains for a second evaluation batch. Return ONLY a compact JSON array of objects {\"lines\":[four strings]}. Lines 1/2 exact rhyme; lines 3/4 another exact rhyme; all final words distinct lowercase CMUdict English; use unusual diverse rhyme endings and avoid day/way, night/light, sky/high, sea/free, sound/ground, glow/snow; line 4 grammatical when final word removed. No markdown.",
+      "sha256": "53d895ccdb20fe20c72cab412763dcb0fe07592479224379eca5631f692b7a1e",
+      "candidate_count": 20,
+      "resolved_models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "claude_code_version": "2.1.207",
+      "generation_date": "2026-07-12",
+      "selection": "CMUdict exact-rhyme validation, then response order"
+    },
+    {
+      "file": "aabb5.raw.json",
+      "scheme": "aabb",
+      "requested_model": "haiku",
+      "prompt": "Generate 20 AABB quatrains as compact JSON array {\"lines\":[4 strings]}. Each poem must use TWO rhyme sounds: line1/2 rhyme with each other; line3/4 rhyme with each other; line1 MUST NOT rhyme line3. Valid: rain/train then glow/snow. Invalid: rain/train then pain/gain. Use varied endings unlike earlier batches. CMUdict English. JSON only.",
+      "sha256": "56ce3f8fda3c873f6640c17d69241d7fbc0b6995af0c5fdc55ae67c962d46d5b",
+      "candidate_count": 20,
+      "resolved_models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "claude_code_version": "2.1.207",
+      "generation_date": "2026-07-12",
+      "selection": "CMUdict exact-rhyme validation, then response order"
+    },
+    {
+      "file": "aabb6.raw.json",
+      "scheme": "aabb",
+      "requested_model": "haiku",
+      "prompt": "Generate 20 AABB quatrains as compact JSON array {\"lines\":[4 strings]}. Every poem has TWO NON-RHYMING families: endings 1/2 rhyme, endings 3/4 rhyme, but endings 1 and 3 do not rhyme. Valid pairs: stone/alone + rain/train. Invalid: four endings sharing one sound. Choose uncommon varied English rhyme words. CMUdict compatible. JSON only.",
+      "sha256": "296c2d9262ed3cc4c3b3babbe4536170ec3b07a38952538f1200b130535cff91",
+      "candidate_count": 20,
+      "resolved_models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "claude_code_version": "2.1.207",
+      "generation_date": "2026-07-12",
+      "selection": "CMUdict exact-rhyme validation, then response order"
+    },
+    {
+      "file": "abba.raw.json",
+      "scheme": "abba",
+      "requested_model": "haiku",
+      "prompt": "Generate 40 distinct ABBA quatrains. Return ONLY a compact JSON array of objects {\"lines\":[four strings]}. Lines 1/4 exact rhyme; lines 2/3 another exact rhyme; all final words distinct lowercase CMUdict English; families differ; diverse; line 4 grammatical when final word removed. No markdown.",
+      "sha256": "b270095e48977c270003cad541eb3309dd89081c12f41bf0485f573c92c162c1",
+      "candidate_count": 40,
+      "resolved_models": [
+        "claude-haiku-4-5-20251001"
+      ],
+      "claude_code_version": "2.1.207",
+      "generation_date": "2026-07-12",
+      "selection": "CMUdict exact-rhyme validation, then response order"
+    },
+    {
+      "file": "haiku_quatrains.jsonl",
+      "scheme": "abab",
+      "sha256": "baa76b1f77137f12473663577296e48e43f5b95b0f39ed7ed5af0b45142e7649",
+      "provenance_gap": "Original prompt, model version, raw response, and edits were not preserved."
+    }
+  ],
+  "rejections": [
+    {
+      "source": "aabb1.raw.json",
+      "index": 2,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 3,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 4,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 5,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 6,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 7,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 8,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 9,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 10,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 11,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 12,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 13,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 14,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 15,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 16,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 17,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 18,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb1.raw.json",
+      "index": 19,
+      "reason": "the two intended families overlap"
+    },
+    {
+      "source": "aabb2.raw.json",
+      "index": 0,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "aabb2.raw.json",
+      "index": 2,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "aabb2.raw.json",
+      "index": 3,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "aabb2.raw.json",
+      "index": 7,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "aabb2.raw.json",
+      "index": 10,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "aabb2.raw.json",
+      "index": 11,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "aabb2.raw.json",
+      "index": 13,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "aabb2.raw.json",
+      "index": 15,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "aabb6.raw.json",
+      "index": 12,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "abba.raw.json",
+      "index": 0,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "abba.raw.json",
+      "index": 9,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "abba.raw.json",
+      "index": 13,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "abba.raw.json",
+      "index": 17,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "abba.raw.json",
+      "index": 26,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "abba.raw.json",
+      "index": 27,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "abba.raw.json",
+      "index": 34,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    },
+    {
+      "source": "abba.raw.json",
+      "index": 39,
+      "reason": "scheme pair fails exact CMUdict rhyme"
+    }
+  ],
+  "final_dataset_sha256": "88265f0e442a72fa82214ea13901d24cd8dd44c7d2ded406e4a8fbeca98d8c7f"
+}

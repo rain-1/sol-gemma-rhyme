@@ -13,6 +13,15 @@
       "selection": "See scripts/run_gemma4_haiku_quatrains.py for evaluation filters",
       "license": "Repository project data",
       "provenance_gap": "Generation prompt, exact model version, raw generations, and edits were not preserved; future generated datasets must record these fields."
+    },
+    "external_scheme_quatrains.jsonl": {
+      "origin": "Independent Claude-generated AABB and ABBA poems plus the existing ABAB comparison corpus",
+      "generator": "Claude Haiku 4.5 (resolved model identifier and per-call metadata preserved in raw envelopes)",
+      "selection": "Deterministic CMUdict validation and response-order selection; exactly 30 poems per scheme",
+      "license": "Repository project data",
+      "provenance": "external_scheme_provenance.json",
+      "generation_spec": "external_scheme_generation_spec.json",
+      "raw_responses": "external_scheme_raw/"
     }
   },
   "required_for_future_generated_data": [

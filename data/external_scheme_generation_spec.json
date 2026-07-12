@@ -1,0 +1,37 @@
+{
+  "generation_date": "2026-07-12",
+  "claude_code_version": "2.1.207",
+  "interface": "claude -p --model haiku --output-format json --no-session-persistence",
+  "sources": [
+    {
+      "file": "aabb1.raw.json",
+      "scheme": "aabb",
+      "requested_model": "haiku",
+      "prompt": "Generate 20 distinct AABB quatrains. Return ONLY a compact JSON array of objects {\"lines\":[four strings]}. Lines 1/2 exact rhyme; lines 3/4 another exact rhyme; all final words distinct lowercase CMUdict English; diverse; line 4 grammatical when final word removed. No markdown."
+    },
+    {
+      "file": "aabb2.raw.json",
+      "scheme": "aabb",
+      "requested_model": "haiku",
+      "prompt": "Generate 20 distinct AABB quatrains for a second evaluation batch. Return ONLY a compact JSON array of objects {\"lines\":[four strings]}. Lines 1/2 exact rhyme; lines 3/4 another exact rhyme; all final words distinct lowercase CMUdict English; use unusual diverse rhyme endings and avoid day/way, night/light, sky/high, sea/free, sound/ground, glow/snow; line 4 grammatical when final word removed. No markdown."
+    },
+    {
+      "file": "aabb5.raw.json",
+      "scheme": "aabb",
+      "requested_model": "haiku",
+      "prompt": "Generate 20 AABB quatrains as compact JSON array {\"lines\":[4 strings]}. Each poem must use TWO rhyme sounds: line1/2 rhyme with each other; line3/4 rhyme with each other; line1 MUST NOT rhyme line3. Valid: rain/train then glow/snow. Invalid: rain/train then pain/gain. Use varied endings unlike earlier batches. CMUdict English. JSON only."
+    },
+    {
+      "file": "aabb6.raw.json",
+      "scheme": "aabb",
+      "requested_model": "haiku",
+      "prompt": "Generate 20 AABB quatrains as compact JSON array {\"lines\":[4 strings]}. Every poem has TWO NON-RHYMING families: endings 1/2 rhyme, endings 3/4 rhyme, but endings 1 and 3 do not rhyme. Valid pairs: stone/alone + rain/train. Invalid: four endings sharing one sound. Choose uncommon varied English rhyme words. CMUdict compatible. JSON only."
+    },
+    {
+      "file": "abba.raw.json",
+      "scheme": "abba",
+      "requested_model": "haiku",
+      "prompt": "Generate 40 distinct ABBA quatrains. Return ONLY a compact JSON array of objects {\"lines\":[four strings]}. Lines 1/4 exact rhyme; lines 2/3 another exact rhyme; all final words distinct lowercase CMUdict English; families differ; diverse; line 4 grammatical when final word removed. No markdown."
+    }
+  ]
+}
