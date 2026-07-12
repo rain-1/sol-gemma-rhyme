@@ -15,6 +15,8 @@ The project now also includes a causal Gemma 4 E2B analysis in two parts:
 
 For a plain-language tour of concrete before/after intervention examples, see
 [`results/06_causal_intervention_gallery.md`](results/06_causal_intervention_gallery.md).
+For where the rhyme code is written (MLPs compute it, attention moves it), see
+[`results/07_where_rhyme_is_written.md`](results/07_where_rhyme_is_written.md).
 
 Run the phase-1 scan with:
 
