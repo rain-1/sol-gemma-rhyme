@@ -1,0 +1,96 @@
+{
+  "seed": 73021,
+  "layer": 13,
+  "precision": "nf4",
+  "targets": [
+    "AE1-N",
+    "AO1-L",
+    "AO1-R",
+    "AY1",
+    "AY1-T",
+    "EH1-R",
+    "EY1",
+    "EY1-N",
+    "EY1-S",
+    "EY1-T",
+    "IY1",
+    "OW1"
+  ],
+  "split": {
+    "EH1-L": "discovery",
+    "EY1-S": "confirmation",
+    "AE1-D": "discovery",
+    "EY1-T": "confirmation",
+    "EH1-S": "discovery",
+    "AO1-R": "confirmation",
+    "IH1-L": "discovery",
+    "EH1-R": "confirmation",
+    "AE1-N-D": "discovery",
+    "OW1": "confirmation",
+    "AY1-N-D": "discovery",
+    "AO1-L": "confirmation",
+    "IY1-N": "discovery",
+    "EY1": "confirmation",
+    "IY1-T": "discovery",
+    "EY1-N": "confirmation",
+    "EH1-D": "discovery",
+    "AE1-N": "confirmation",
+    "IH1-R": "discovery",
+    "AY1": "confirmation",
+    "AE1-S": "discovery",
+    "AY1-T": "confirmation",
+    "AY1-D": "discovery",
+    "IY1": "confirmation"
+  },
+  "discovery_alpha_scores": {},
+  "selected_alpha": 2.0,
+  "confirmation_alpha": 2.0,
+  "n_prompts": 14,
+  "control_repeats": 3,
+  "factorial": {
+    "family_macro_mean_delta_target_mass": 0.12921834282773517,
+    "family_bootstrap_95ci": [
+      0.07314673982685771,
+      0.1935976050335019
+    ],
+    "n_families": 12
+  },
+  "random": {
+    "family_macro_mean_delta_target_mass": 0.008666340526812385,
+    "family_bootstrap_95ci": [
+      0.003702110314458313,
+      0.01431650392990486
+    ],
+    "n_families": 12
+  },
+  "shuffled": {
+    "family_macro_mean_delta_target_mass": 0.014810055421499163,
+    "family_bootstrap_95ci": [
+      0.005365650174487814,
+      0.026092524732585522
+    ],
+    "n_families": 12
+  },
+  "factorial_minus_random": {
+    "family_macro_mean": 0.12055200230092274,
+    "family_bootstrap_95ci": [
+      0.06753592162272369,
+      0.18319364281362988
+    ]
+  },
+  "factorial_minus_shuffled": {
+    "family_macro_mean": 0.11440828740623599,
+    "family_bootstrap_95ci": [
+      0.06556068182428577,
+      0.17293132319709442
+    ]
+  },
+  "spelling_control": {
+    "mean_delta_cross_spelling_mass": 0.07085796925194571,
+    "bootstrap_95ci_prompt": [
+      0.04858444110373605,
+      0.09693585285380807
+    ],
+    "n": 159
+  }
+}

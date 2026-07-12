@@ -1,0 +1,102 @@
+{
+  "seed": 73021,
+  "layer": 13,
+  "precision": "nf4",
+  "targets": [
+    "AE1-D",
+    "AE1-N-D",
+    "AE1-S",
+    "AY1-D",
+    "AY1-N-D",
+    "EH1-D",
+    "EH1-L",
+    "EH1-S",
+    "IH1-L",
+    "IH1-R",
+    "IY1-N",
+    "IY1-T"
+  ],
+  "split": {
+    "EH1-L": "discovery",
+    "EY1-S": "confirmation",
+    "AE1-D": "discovery",
+    "EY1-T": "confirmation",
+    "EH1-S": "discovery",
+    "AO1-R": "confirmation",
+    "IH1-L": "discovery",
+    "EH1-R": "confirmation",
+    "AE1-N-D": "discovery",
+    "OW1": "confirmation",
+    "AY1-N-D": "discovery",
+    "AO1-L": "confirmation",
+    "IY1-N": "discovery",
+    "EY1": "confirmation",
+    "IY1-T": "discovery",
+    "EY1-N": "confirmation",
+    "EH1-D": "discovery",
+    "AE1-N": "confirmation",
+    "IH1-R": "discovery",
+    "AY1": "confirmation",
+    "AE1-S": "discovery",
+    "AY1-T": "confirmation",
+    "AY1-D": "discovery",
+    "IY1": "confirmation"
+  },
+  "discovery_alpha_scores": {
+    "0.5": 0.0019690245038348113,
+    "1.0": 0.07725196037717869,
+    "2.0": 0.15242930105396446,
+    "4.0": 0.03791273901639826,
+    "8.0": 0.005532656441647601
+  },
+  "selected_alpha": 2.0,
+  "confirmation_alpha": 2.0,
+  "n_prompts": 14,
+  "control_repeats": 3,
+  "factorial": {
+    "family_macro_mean_delta_target_mass": 0.1509554643241541,
+    "family_bootstrap_95ci": [
+      0.10105171000066236,
+      0.2015772870821257
+    ],
+    "n_families": 12
+  },
+  "random": {
+    "family_macro_mean_delta_target_mass": 0.0032222725758815104,
+    "family_bootstrap_95ci": [
+      0.0012793567864795546,
+      0.0055347136620781095
+    ],
+    "n_families": 12
+  },
+  "shuffled": {
+    "family_macro_mean_delta_target_mass": 0.0075771244691426156,
+    "family_bootstrap_95ci": [
+      0.0009045820496149949,
+      0.018885805833673993
+    ],
+    "n_families": 12
+  },
+  "factorial_minus_random": {
+    "family_macro_mean": 0.1477331917482726,
+    "family_bootstrap_95ci": [
+      0.09707117074858322,
+      0.199664847266015
+    ]
+  },
+  "factorial_minus_shuffled": {
+    "family_macro_mean": 0.14337833985501156,
+    "family_bootstrap_95ci": [
+      0.09009033827174671,
+      0.19543947450873542
+    ]
+  },
+  "spelling_control": {
+    "mean_delta_cross_spelling_mass": 0.05020413782008352,
+    "bootstrap_95ci_prompt": [
+      0.031292283907759746,
+      0.0721315246251242
+    ],
+    "n": 166
+  }
+}

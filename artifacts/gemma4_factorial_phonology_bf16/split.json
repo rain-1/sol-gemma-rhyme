@@ -1,0 +1,29 @@
+{
+  "seed": 73021,
+  "targets": {
+    "EH1-L": "discovery",
+    "EY1-S": "confirmation",
+    "AE1-D": "discovery",
+    "EY1-T": "confirmation",
+    "EH1-S": "discovery",
+    "AO1-R": "confirmation",
+    "IH1-L": "discovery",
+    "EH1-R": "confirmation",
+    "AE1-N-D": "discovery",
+    "OW1": "confirmation",
+    "AY1-N-D": "discovery",
+    "AO1-L": "confirmation",
+    "IY1-N": "discovery",
+    "EY1": "confirmation",
+    "IY1-T": "discovery",
+    "EY1-N": "confirmation",
+    "EH1-D": "discovery",
+    "AE1-N": "confirmation",
+    "IH1-R": "discovery",
+    "AY1": "confirmation",
+    "AE1-S": "discovery",
+    "AY1-T": "confirmation",
+    "AY1-D": "discovery",
+    "IY1": "confirmation"
+  }
+}
