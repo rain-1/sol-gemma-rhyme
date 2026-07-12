@@ -23,10 +23,17 @@ chance 0.033. Reproduce with `scripts/run_gemma4_mlp13_neurons.py`.
   phonemes — some to a coda (neuron 4326 → *-T*, 1375 → *-D*), some to a vowel
   (2256 → *OW*, 2493 → *UW*) — and the most rhyme-selective neurons split about
   evenly into a vowel population and a coda population.
+- **The causal signal is a low-rank direction, not a neuron set.** Ranking
+  neurons by *what they write into the family directions* (not how much their
+  activation varies) is far more causal — ablating 1024 output-weighted neurons
+  costs 66%, versus 23% for the same number of activation-selective ones. And
+  projecting a **rank-4 family subspace** out of the layer-13 output removes 19%
+  of the prediction (rank-16: 44%), against ~1% for a random subspace. The write
+  is a few directions carried in superposition across many neurons.
 
-Together: the MLP-13 rhyme code is **sparsely readable, densely written, and
-organized along a vowel axis and a coda axis** — a distributed but structured
-representation, not a handful of grandmother neurons.
+Together: the MLP-13 rhyme code is **sparsely readable, densely written as a
+low-rank direction, and organized along a vowel axis and a coda axis** — a
+distributed but structured representation, not a handful of grandmother neurons.
 
 ## 1. Sixteen neurons read the family
 
@@ -89,12 +96,54 @@ image of the compositional code that the probes saw in aggregate (report 08 §2:
 coda decodes at 0.82, vowel at 0.45): the MLP represents "what a word sounds
 like" on two roughly separable phonemic axes.
 
+## 4. Where the causal write actually lives
+
+Section 2 showed the activation-selective neurons are not the causal ones. Two
+searches locate the real signal (bf16; baseline mass 0.864 for this run;
+`scripts/run_gemma4_mlp13_causal_search.py`).
+
+**Output-weighted neurons.** Score each neuron by how much it drives its word's
+family direction — `activation × (down-projection column · family direction)` —
+and ablate the top k at the anchor:
+
+| k ablated | activation-selective | output-weighted | random |
+|---:|---:|---:|---:|
+| 16 | −5% | −10% | 0% |
+| 64 | −9% | −12% | 0% |
+| 256 | −13% | **−33%** | 1% |
+| 1024 | −23% | **−66%** | 1% |
+
+Ordering by *what a neuron writes* instead of *how selective its activation is*
+roughly triples the causal effect. The write is still not sparse — it takes ~1000
+neurons for −66% — but it is now clearly located in the output-heavy population,
+invisible to the activation-variance ranking.
+
+**A low-rank direction.** Projecting the top rank-r subspace of the family means
+out of the layer-13 output at the anchor, versus a random subspace of the same
+rank:
+
+| rank r | family subspace | random subspace |
+|---:|---:|---:|
+| 1 | 0% | 1% |
+| 4 | **−19%** | 1% |
+| 16 | **−44%** | 22% |
+| 64 | −45% | 49% |
+
+A four-dimensional family subspace already carries a fifth of the causal effect
+that a random four-dimensional cut does not touch, and sixteen dimensions carry
+almost half (a random rank-16 cut removes 22% just by damaging the residual, so
+the family-specific part is the ~22-point gap). The causal rhyme write is a
+**low-rank direction — a handful of dimensions — spread in superposition across
+the MLP's neurons.** This is why the rank-1 weight edit (report 08 §6) works by
+adding a direction, and why no small neuron subset is a bottleneck.
+
 ## Limits
 
-- Neurons are ranked by activation selectivity, which finds *readable* neurons,
-  not necessarily the causally heaviest; an output-weighted ranking (each
-  neuron's down-projection column projected onto family directions) might locate
-  more causal units, and is the natural next step.
+- Neuron rankings and the family subspace are fit on the same word set the
+  effect is measured against; a held-out fit would be stricter. The low-rank
+  directional result is the more robust of the two.
+- A monosemantic feature dictionary (an SAE on this MLP) is the natural next
+  step to name the directions rather than approximate them with family means.
 - Tuning is correlational and per-neuron; polysemantic neurons are scored by
   their dominant phoneme only. This is not a dictionary of monosemantic features
   — that would need an SAE on this MLP.
@@ -104,8 +153,9 @@ like" on two roughly separable phonemic axes.
 ## Reproduction
 
 ```bash
-PYTHONPATH=scripts .venv/bin/python scripts/run_gemma4_mlp13_neurons.py
+PYTHONPATH=scripts .venv/bin/python scripts/run_gemma4_mlp13_neurons.py        # sections 1-3
+PYTHONPATH=scripts .venv/bin/python scripts/run_gemma4_mlp13_causal_search.py  # section 4 (bf16)
 ```
 
-Writes the captured neuron activations to
+The first writes the captured neuron activations to
 `artifacts/gemma4_mlp_rhyme/mlp13_neurons.npz` for further CPU analysis.
