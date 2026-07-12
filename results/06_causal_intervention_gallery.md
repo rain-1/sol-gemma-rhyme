@@ -187,12 +187,34 @@ The key swap re-points the head: its attention on the *hill* line rises from
 **0.006 → 0.828**. Swapping the *values* instead leaves attention (0.50 / 0.19)
 and the word untouched.
 
-A second open stanza, whose line above ends in *breeze* and whose line two up
-ends in *rain*: the normal completion is `tree` (leaning to *breeze*), but with
-ABAB keys pasted in the model says **`name`** — pulled toward the *rain* line two
-up. The keys are the "where to look" address; the values are the "what it sounds
-like" content. You can redirect which line the model rhymes against without
-touching the lines themselves.
+### It always re-points the head; it doesn't always change the word
+
+This is the honest part, and it is the interesting part. The key swap moves the
+head's attention toward the wrong line in **every** example — but whether that
+changes the *emitted word* depends on how strong a completion is already riding
+on top. Three cases, same intervention:
+
+| Stanza (line above / two up) | Normal | With ABAB keys | Attention on the wrong line | Prob. on wrong-line family |
+|---|---|---|---:|---:|
+| *time* / **hill** | `grim` | **`still`** ✓ rhymes *hill* | 0.19 → **0.52** | 0.006 → **0.828** |
+| *breeze* / **rain** | `tree` | `name` ~ leans to *rain* | 0.13 → **0.47** | 0.005 → 0.057 |
+| *snow* / **star** | `away` | `away` — unchanged | 0.08 → **0.45** | 0.001 → 0.195 |
+
+In the first stanza the swap wins outright: the word flips to `still` and 83% of
+the probability lands on the wrong line's sound. In the second it moves the word
+into the neighbourhood (`name`, near *rain*) without a clean exact rhyme. In the
+third the head's attention swings just as hard (0.08 → 0.45) yet the fluent
+semantic word `away` still wins the greedy choice — a **re-routed head whose
+signal is overridden downstream**. Across the whole AABB set the *mechanism* is
+reliable: mean attention on the correct line falls 0.60 → 0.28 and on the wrong
+line rises 0.13 → 0.35. Whether the poem's final word changes is a separate,
+noisier question that depends on the rest of the line.
+
+Swapping the *values* instead of the keys never does this — attention and the
+word both stay put. The keys are the "where to look" address; the values are the
+"what it sounds like" content. You can redirect which line the head consults
+without touching a single word of the poem; you cannot always force that change
+all the way to the output.
 
 ---
 

@@ -20,10 +20,19 @@ with one fixed pipeline, not on an absolute number.
 
 ## Main conclusions
 
-- **Rhyme is not readable from geometry.** Nearest-neighbour by cosine lands on
-  a rhyming word only ~1 in 6 times, and unsupervised clustering of the raw
-  representations recovers almost nothing (purity 0.23). Rhyme is not a distance
-  between two word vectors; it is a learned direction.
+- **Rhyme is not readable from the raw residual or the embedding.** There,
+  nearest-neighbour by cosine lands on a rhyming word only ~1 in 6 times and
+  clustering recovers little (purity 0.23–0.32); a family probe on the layer-13
+  residual reaches only ~0.30 on held-out words. The raw stream is dominated by
+  other content.
+- **But it is strongly readable where the head reads it.** The retrieval head
+  does not consume the raw residual; it reads the layer-14 shared-attention
+  *value* memory, which is the value projection of that residual. A probe there
+  labels the rhyme family of **held-out words at 0.88** (30 classes, chance
+  0.03) and **0.86 across a held-out scaffold**; even unsupervised clustering
+  reaches 0.60 purity, and nearest-neighbour becomes a working rhyming
+  dictionary. Probing the representation the circuit analysis identifies gives a
+  strong, precise readout — the earlier weak numbers came from probing upstream.
 - **It is contextual.** The layer-13 rhyme code is weaker for a word dropped in
   a neutral sentence than for the same word in a rhyming context, and every
   reading is far above its shuffled-label control. Behaviourally the whole
@@ -40,16 +49,18 @@ with one fixed pipeline, not on an absolute number.
 - **Synthesis: the MLPs compute what a word sounds like; the L24H3 attention
   head moves that code to where the next word is chosen.**
 
-## 1. Rhyme is not embedding geometry
+## 1. Rhyme is not in the raw residual geometry
 
 A tempting hypothesis is that rhyming words sit near each other in the model's
-vector space. They do not, in any directly measurable way. Taking rhyming words
-and asking each for its nearest neighbour by cosine similarity, only about
-**1 in 6** neighbours is a true rhyme; agglomerative clustering of the raw
-representations reaches a cluster purity of just **0.23**. Static token
-embeddings carry a little rhyme information (a linear probe reaches ~0.31,
-mostly via spelling), but not enough to read rhyme off distances. Whatever
-encodes rhyme is a low-variance *learned direction*, not the dominant geometry.
+residual stream. In the raw stream they do not, in any directly measurable way.
+Taking rhyming words and asking each for its nearest neighbour by cosine
+similarity in the layer-13 residual, only about **1 in 6** neighbours is a true
+rhyme; clustering the raw residual reaches a purity of just **0.23–0.32**, and a
+family probe on it recovers held-out words at only **0.30**. Static token
+embeddings carry a little rhyme information (a probe reaches ~0.31, mostly via
+spelling), but not enough to read rhyme off distances. In the raw stream, rhyme
+is a low-variance *learned direction*, not the dominant geometry — which is why
+§6 has to read it from the projected memory the head consumes, not from here.
 
 ## 2. Rhyme is computed in context
 
@@ -149,6 +160,47 @@ the specific code the retrieval head consumes is consolidated and written by the
 
 ![MLP vs attention: where rhyme accumulates and which layers causally hold it](figures/gemma4_mlp_rhyme.png)
 
+## 6. Reading rhyme sets off the code the head consumes
+
+The right place to read rhyme is where the head reads it. Probing the layer-14
+shared full-attention **value** memory at the anchor — the value projection of
+the MLP-written residual, and the exact input to the L24H3 retrieval head — a
+regularized linear probe labels the rhyme family of **held-out words at 0.88**
+(30 classes, chance 0.03; the raw layer-13 residual, same probe and split, gets
+0.30). Trained on one scaffold and tested on unseen words in another, it still
+reaches **0.86**. The signal is phonemic and compositional: the same value
+memory decodes the *coda* of an entirely held-out family at 0.82 (report 03).
+
+Grouping held-out words by the readout's decision pulls out clean rhyme families
+(`*` = the readout disagreed with CMUdict):
+
+```text
+AY1-T   : fight, site, might, despite, light, eight*, straight*
+OW1-L-D : bold, cold, old, hold, told
+IY1-T   : feet, heat, seat, meat, eat
+EH1-N-T : percent, went, extent, consent, represent
+EY1-M   : remain*, fame, name, flame, shame, game
+IY1-N   : green, screen, queen, routine, clean
+```
+
+And a nearest-neighbour query in the value memory is a genuine rhyming
+dictionary:
+
+```text
+light -> night, flight, right, fight, weight, might
+grace -> space, trace, race, embrace, pace, place
+rain  -> train, pain, brain, gain, chain, maintain
+day   -> say, pay, may, today, way, stay
+```
+
+Unsupervised clustering of held-out words in this space reaches 0.60 purity,
+against 0.32 for the raw residual. The contrast with §1 is the whole point: the
+rhyme code the MLP writes is buried in the residual, but the layer-14 value
+projection isolates it into a clean, near-linearly-separable family code — so a
+correct identification of *where* the head reads yields a strong, precise
+readout. Reproduce with `scripts/extract_rhyme_sets.py` (it consumes the value
+memory captured by `run_gemma4_representation.py`).
+
 ## Interpretation
 
 Together these give a concrete division of labour for the rhyme circuit:
@@ -184,6 +236,7 @@ MLPs write when prompted, not a global arrangement of word vectors.
 ```bash
 PYTHONPATH=scripts .venv/bin/python scripts/run_gemma4_mlp_rhyme.py
 PYTHONPATH=scripts .venv/bin/python scripts/run_gemma4_mlp_rhyme.py --only sweep
+PYTHONPATH=scripts .venv/bin/python scripts/extract_rhyme_sets.py   # section 6
 .venv/bin/python scripts/plot_gemma4_mlp_rhyme.py
 ```
 
