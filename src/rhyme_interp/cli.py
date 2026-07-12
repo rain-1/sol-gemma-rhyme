@@ -16,7 +16,8 @@ from .dataset import (
     build_elicitation_dataset,
     write_jsonl,
 )
-from .model import load_model
+from .manifest import write_manifest
+from .model import load_model, resolve_load_options
 
 
 def _write(rows, path: Path):
@@ -38,6 +39,7 @@ def main(argv=None):
     parser.add_argument("--source", type=int, default=1, help="Source base couplet for patching")
     parser.add_argument("--device")
     parser.add_argument("--model", default=None, help="Hugging Face model name (defaults to Pythia-410M deduped)")
+    parser.add_argument("--revision", help="Exact Hugging Face model revision (Gemma 4 uses the tested pin by default)")
     parser.add_argument("--load-in-4bit", action="store_true", help="Load with bitsandbytes NF4 quantization")
     parser.add_argument("--counts", default="1,3,5,10,15,20", help="Comma-separated demo counts for distinct")
     parser.add_argument(
@@ -53,10 +55,13 @@ def main(argv=None):
         write_jsonl(path, examples)
         print(f"Wrote {len(examples)} examples to {path}")
         return
+    model_name = args.model or "EleutherAI/pythia-410m-deduped"
+    revision, _ = resolve_load_options(model_name, args.revision)
     bundle = load_model(
-        model_name=args.model or "EleutherAI/pythia-410m-deduped",
+        model_name=model_name,
         device=args.device,
         load_in_4bit=args.load_in_4bit,
+        revision=revision,
     )
     if args.command in {"evaluate", "elicit", "distinct"}:
         from .model import evaluate_examples
@@ -94,6 +99,11 @@ def main(argv=None):
             rows = counterfactual_anchor_patch(source, example, bundle)
             path = args.output or Path("artifacts/counterfactual_patch.csv")
     _write(rows, path)
+    write_manifest(
+        path.with_suffix(path.suffix + ".manifest.json"), model=model_name, revision=revision,
+        precision="nf4" if args.load_in_4bit else "auto", seed=None,
+        datasets=["data/controlled_couplets.jsonl"],
+    )
     print(f"Wrote {len(rows)} rows to {path}")
 
 

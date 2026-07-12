@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "datasets": {
+    "controlled_couplets.jsonl": {
+      "origin": "Hand-written controlled benchmark",
+      "generator": null,
+      "selection": "25 underlying couplets rendered under eight fixed wrappers",
+      "license": "Repository project data"
+    },
+    "haiku_quatrains.jsonl": {
+      "origin": "Claude-generated external scheme dataset",
+      "generator": "Claude (exact model/version not recorded in the original run)",
+      "selection": "See scripts/run_gemma4_haiku_quatrains.py for evaluation filters",
+      "license": "Repository project data",
+      "provenance_gap": "Generation prompt, exact model version, raw generations, and edits were not preserved; future generated datasets must record these fields."
+    }
+  },
+  "required_for_future_generated_data": [
+    "provider and exact model version",
+    "generation prompt and parameters",
+    "raw output hash",
+    "filtering and manual edit log",
+    "final dataset hash"
+  ]
+}

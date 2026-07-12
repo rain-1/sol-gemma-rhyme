@@ -107,11 +107,13 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--top", type=int, default=100, help="Dev-selected formats to evaluate on held-out poems")
     parser.add_argument("--model", default="EleutherAI/pythia-410m-deduped")
+    parser.add_argument("--revision", help="Exact Hugging Face model revision")
+    parser.add_argument("--load-in-4bit", action="store_true")
     parser.add_argument("--max-formats", type=int, default=None, help="Deterministically sample this many formats")
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
 
-    bundle = load_model(args.model)
+    bundle = load_model(args.model, revision=args.revision, load_in_4bit=args.load_in_4bit)
     configs = formats()
     if args.max_formats and args.max_formats < len(configs):
         configs = random.Random(args.seed).sample(configs, args.max_formats)

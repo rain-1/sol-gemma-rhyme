@@ -9,10 +9,13 @@ description = "Controlled rhyme interpretability experiments for Pythia-410M"
 requires-python = ">=3.10"
 dependencies = [
   "cmudict>=1.1,<2",
+  "matplotlib>=3.8",
   "numpy>=1.26",
   "pandas>=2",
+  "scikit-learn>=1.4",
   "torch>=2.2",
   "transformers>=4.45",
+  "wordfreq>=3.1",
 ]
 
 [project.optional-dependencies]

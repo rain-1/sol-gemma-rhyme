@@ -20,7 +20,7 @@ PYTHONPATH=scripts .venv/bin/python scripts/validate_gemma4_circuit.py
 ```
 
 Phase-2 scripts are listed in the phase-2 report's reproduction section. All
-Gemma 4 analyses load the model with eager attention: the pinned Transformers
+Gemma 4 loads automatically select eager attention: the pinned Transformers
 revision drops the attention mask on the sdpa path (see
 `src/rhyme_interp/model.py`).
 
@@ -32,17 +32,37 @@ restricted to standalone single-token English words.
 ## Setup and reproduction
 
 ```bash
-python -m venv --system-site-packages .venv
-.venv/bin/pip install -e '.[dev]'
+python -m venv .venv
+.venv/bin/pip install -e '.[dev,quant,gemma4]'
 .venv/bin/rhyme-interp dataset
 .venv/bin/rhyme-interp evaluate
 .venv/bin/rhyme-interp elicit
 .venv/bin/rhyme-interp distinct
 .venv/bin/rhyme-interp elicit --model EleutherAI/pythia-1.4b-deduped
 .venv/bin/rhyme-interp elicit --model allenai/Olmo-3-1025-7B --load-in-4bit
-.venv/bin/pip install -e '.[quant,gemma4]'
 .venv/bin/rhyme-interp elicit --model google/gemma-4-E2B --load-in-4bit
 ```
+
+### Reproduction DAG
+
+Run stages from top to bottom; arrows mean that a later stage consumes the
+earlier stage's checked dataset or output.
+
+```text
+environment install
+  -> controlled dataset (`rhyme-interp dataset`)
+  -> behavioral baselines (`evaluate`, `elicit`, `distinct`)
+  -> circuit discovery (`run_gemma4_interpretability.py`)
+  -> circuit validation (`validate_gemma4_circuit.py`)
+  -> representation / steering / schemes / planning (phase-2 scripts)
+  -> report tables and figures (plot scripts)
+```
+
+The CLI writes a `*.manifest.json` beside every model-run output. It records
+the exact model revision, precision, command, dataset SHA-256, git state, and
+package versions. Gemma 4 defaults to the tested immutable Hub revision; use
+`--revision` to make an intentional override. Dataset origins and known gaps
+are recorded in `data/PROVENANCE.json`.
 
 The behavior output records top-1/top-10 rhyme accuracy, total probability mass
 on the anchor's rhyme family, the known target's probability and rank, and a

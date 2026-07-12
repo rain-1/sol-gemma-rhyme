@@ -12,6 +12,28 @@ from .rhyme import rhyme_token_ids, rhymes, single_token_words
 
 
 DEFAULT_MODEL = "EleutherAI/pythia-410m-deduped"
+GEMMA4_MODEL = "google/gemma-4-E2B"
+# A model name is mutable. This is the exact snapshot used for the reported
+# Gemma experiments and is applied unless a caller explicitly requests another.
+DEFAULT_REVISIONS = {
+    GEMMA4_MODEL: "19f17d3255f458aa49ebe8843d65ec7b7386db1f",
+}
+
+
+def is_gemma4(model_name: str) -> bool:
+    """Return whether a Hub id or local path identifies Gemma 4."""
+    return "gemma-4-" in model_name.lower()
+
+
+def resolve_load_options(
+    model_name: str, revision: str | None = None, attn_implementation: str | None = None,
+) -> tuple[str | None, str | None]:
+    """Resolve reproducible/safe defaults without requiring model weights."""
+    resolved_revision = revision if revision is not None else DEFAULT_REVISIONS.get(model_name)
+    # Gemma 4's SDPA path in the tested Transformers revision mishandles left
+    # padding. Never leave correctness dependent on each script remembering this.
+    resolved_attention = "eager" if is_gemma4(model_name) else attn_implementation
+    return resolved_revision, resolved_attention
 
 
 @dataclass
@@ -27,16 +49,19 @@ def load_model(
     device: str | None = None,
     load_in_4bit: bool = False,
     attn_implementation: str | None = None,
+    revision: str | None = None,
 ) -> ModelBundle:
     """Load a causal LM for analysis.
 
-    Gemma 4 batch analyses must pass `attn_implementation="eager"`: on the
+    Gemma 4 batch analyses automatically use `attn_implementation="eager"`: on the
     pinned Transformers development revision the sdpa path silently ignores
     the attention mask, so left-padded rows attend to their EOS padding and
     produce corrupted logits. Eager matches unbatched outputs exactly.
     """
+    revision, attn_implementation = resolve_load_options(model_name, revision, attn_implementation)
     resolved = torch.device(device or ("cuda" if torch.cuda.is_available() else "cpu"))
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    hub_kwargs = {"revision": revision} if revision else {}
+    tokenizer = AutoTokenizer.from_pretrained(model_name, **hub_kwargs)
     tokenizer.pad_token = tokenizer.eos_token
     kwargs = {"dtype": "auto"}
     if attn_implementation:
@@ -51,7 +76,7 @@ def load_model(
             ),
             device_map={"": str(resolved)},
         )
-    model = AutoModelForCausalLM.from_pretrained(model_name, **kwargs)
+    model = AutoModelForCausalLM.from_pretrained(model_name, **hub_kwargs, **kwargs)
     if not load_in_4bit:
         model.to(resolved)
     model.eval()
