@@ -6,12 +6,15 @@ completes the last word of a rhyming couplet.
 The project now also includes a causal Gemma 4 E2B analysis in two parts:
 
 - Phase 1, circuit identification:
-  [`results/gemma4_rhyme_mechanism.md`](results/gemma4_rhyme_mechanism.md)
+  [`results/02_gemma4_rhyme_mechanism.md`](results/02_gemma4_rhyme_mechanism.md)
 - Phase 2, what the circuit computes (family probes, steering, scheme
   routing, head readout, planning):
-  [`results/gemma4_rhyme_representation.md`](results/gemma4_rhyme_representation.md)
+  [`results/03_gemma4_rhyme_representation.md`](results/03_gemma4_rhyme_representation.md)
 - Phase 3, causal tests of phonological recombination, routing, and planning:
-  [`results/gemma4_phase3_causal_tests.md`](results/gemma4_phase3_causal_tests.md)
+  [`results/04_gemma4_phase3_causal_tests.md`](results/04_gemma4_phase3_causal_tests.md)
+
+For a plain-language tour of concrete before/after intervention examples, see
+[`results/06_causal_intervention_gallery.md`](results/06_causal_intervention_gallery.md).
 
 Run the phase-1 scan with:
 

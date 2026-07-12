@@ -1,6 +1,6 @@
 # What the rhyme circuit computes: representation, routing, and readout in Gemma 4 E2B
 
-Phase 1 (`gemma4_rhyme_mechanism.md`) identified a storage-and-retrieval
+Phase 1 (`02_gemma4_rhyme_mechanism.md`) identified a storage-and-retrieval
 circuit: layers 12–13 build an anchor representation, layer 14 stores it in the
 shared full-attention value memory, and head L24H3 retrieves it at the final
 token. Phase 2 asks what those components actually compute. All experiments use
@@ -260,7 +260,7 @@ for a random-vector control and 1.48 for shuffled component assignments. All
 BF16 replication gains 14.52 points (CI 8.02–21.86). This is causal evidence
 that reusable vowel and coda information can be recombined into an unseen
 rhyme-family constraint. Full design and results are in
-`gemma4_factorial_phonology.md`.
+`05_gemma4_factorial_phonology.md`.
 
 ## E7. Scheme routing uses memory keys and a late-formed query
 

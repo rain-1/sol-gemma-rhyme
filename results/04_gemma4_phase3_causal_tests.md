@@ -70,7 +70,7 @@ an unseen family constraint. They do not imply that the representation is a
 perfectly linear phoneme table.
 
 The complete preregistration, split, family-level results, and controls are in
-[`gemma4_factorial_phonology.md`](gemma4_factorial_phonology.md).
+[`05_gemma4_factorial_phonology.md`](05_gemma4_factorial_phonology.md).
 
 ## 2. Separating content from addressability
 

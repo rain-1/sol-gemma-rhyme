@@ -1,7 +1,7 @@
 # First milestone: technical report
 
 For a plain-language explanation, including concrete examples, read
-[`first_milestone_explained.md`](first_milestone_explained.md).
+[`01a_first_milestone_explained.md`](01a_first_milestone_explained.md).
 
 ## Question and experimental setup
 

@@ -6,7 +6,7 @@
 > was re-run with eager attention: all headline numbers replicate within noise
 > (for example clean rhyme mass 78.6% vs 78.8%; L24H3 ablation to 13.4% vs
 > 13.7%; value transfer 108.8% vs 108.9%). Details and the corrected table are
-> in `gemma4_rhyme_representation.md`, which also answers this report's open
+> in `03_gemma4_rhyme_representation.md`, which also answers this report's open
 > questions on scheme routing and representation content.
 
 ## Executive conclusion
