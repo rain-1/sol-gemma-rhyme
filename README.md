@@ -20,6 +20,8 @@ For where the rhyme code is written (MLPs compute it, attention moves it), see
 For reading rhyme families out of the value memory the head consumes — a 0.90
 readout, full-family coverage, and writing fake rhymes in — see
 [`results/08_reading_rhyme_out.md`](results/08_reading_rhyme_out.md).
+For inside the layer-13 MLP (sparse readout, distributed write, vowel/coda
+neurons), see [`results/09_inside_the_mlp.md`](results/09_inside_the_mlp.md).
 
 Run the phase-1 scan with:
 
