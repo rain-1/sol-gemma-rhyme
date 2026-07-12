@@ -17,6 +17,9 @@ For a plain-language tour of concrete before/after intervention examples, see
 [`results/06_causal_intervention_gallery.md`](results/06_causal_intervention_gallery.md).
 For where the rhyme code is written (MLPs compute it, attention moves it), see
 [`results/07_where_rhyme_is_written.md`](results/07_where_rhyme_is_written.md).
+For reading rhyme families out of the value memory the head consumes — a 0.90
+readout, full-family coverage, and writing fake rhymes in — see
+[`results/08_reading_rhyme_out.md`](results/08_reading_rhyme_out.md).
 
 Run the phase-1 scan with:
 
