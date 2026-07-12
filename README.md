@@ -22,6 +22,8 @@ readout, full-family coverage, and writing fake rhymes in — see
 [`results/08_reading_rhyme_out.md`](results/08_reading_rhyme_out.md).
 For inside the layer-13 MLP (sparse readout, distributed write, vowel/coda
 neurons), see [`results/09_inside_the_mlp.md`](results/09_inside_the_mlp.md).
+For an SAE on that MLP (lexical features vs a partial phoneme dictionary), see
+[`results/10_sae_on_the_mlp.md`](results/10_sae_on_the_mlp.md).
 
 Run the phase-1 scan with:
 
